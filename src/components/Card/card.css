@@ -1,0 +1,24 @@
+.Card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    z-index: 0;
+}
+
+.Card .Content {
+    padding: 20px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+
+.Card.Black .Content {
+    background: rgb(0,0,0);
+    background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(23,23,23,1) 62%, rgba(180,180,180,1) 100%);
+    border-color: #080808;
+}
+
+.Card.Grey .Content {
+    background: rgb(41,41,41);
+    background: linear-gradient(90deg, rgba(41,41,41,1) 0%, rgba(166,166,166,1) 62%, rgba(255,255,255,1) 100%);
+}

@@ -1,0 +1,75 @@
+.btn {
+    margin-right: 5px;
+}
+
+.markedAsDone {
+    text-decoration: line-through;
+    color: #777;
+}
+
+.tableAction {
+    width: 105px;
+}
+
+.quadrinhosForm {
+    padding-bottom: 60px;
+}
+
+body {
+    background: rgba(0,0,0,1);
+    background-image: url('/resources/img/1.png');
+    background-size: cover;
+    background-repeat: none;
+}
+
+.menu-img {
+    background-image: url('/resources/img/imagemMenu.png');
+}
+table {
+    color: white;
+}
+
+.page-header {
+    font-family: Comic-Book-Bold;
+    color: #ec1d25;
+    -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+
+.about {
+    font-family: Comic-Book-Bold;
+    color: white;
+    -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  font-size: initial;
+}
+
+.center {
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+}
+
+.navbar-inverse .navbar-brand {
+    font-family: Avengero;
+    color: #ec1d25;
+    -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    font-family: Comic-Book-Bold;
+    color: #ec1d25;
+    -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  font-size: x-large;
+}
+
+@font-face {
+    font-family: 'Avengero';
+    src: local('Avengero'), url('/resources/fonts/AvengeroRegular-zvgl.ttf') format('truetype');
+  }
+@font-face {
+    font-family: 'Comic-Book-Bold';
+    src: local('Comic-Book-Bold'), url('/resources/fonts/Comic-Book-Bold.otf') format('opentype');
+  }
