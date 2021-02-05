@@ -12,4 +12,8 @@ O sistema utiliza-se de React, Redux, React-Modal e possui implementações de e
 
 Todas as imagens, fonts, textos e quadrinhos são de propriedade da Marvel Comics.
 
+### Link Github-Pages
+
+(https://xulipaxulepa.github.io/#/quadrinhoss)
+
 **EXCELSIOR!!!!**

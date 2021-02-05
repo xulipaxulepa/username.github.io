@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import IconButton from '../../template/iconButton'
 import { toastr } from 'react-redux-toastr'
+import{ init } from 'emailjs-com';
+init("user_obfFM60jhEZz4SnVfNc4T");
+import emailjs from 'emailjs-com';
 
 let mensagem = '';
 
@@ -10,7 +13,6 @@ export default class modalEmail extends Component {
         this.state = { from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email' };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.mountMessage = this.mountMessage.bind(this)
     }
 
     mountMessage(){
@@ -69,7 +71,7 @@ export default class modalEmail extends Component {
     }
 
     sendFeedback(templateId, variables) {
-        window.emailjs.send(
+        emailjs.send(
             'gmail', templateId,
             variables
         ).then(res => {

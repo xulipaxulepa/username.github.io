@@ -62,19 +62,19 @@
 
 	var _reactRedux = __webpack_require__(131);
 
-	var _reducers = __webpack_require__(224);
+	var _reducers = __webpack_require__(227);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _reduxPromise = __webpack_require__(232);
+	var _reduxPromise = __webpack_require__(235);
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	var _reduxMulti = __webpack_require__(239);
+	var _reduxMulti = __webpack_require__(242);
 
 	var _reduxMulti2 = _interopRequireDefault(_reduxMulti);
 
-	var _reduxThunk = __webpack_require__(240);
+	var _reduxThunk = __webpack_require__(243);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
@@ -30676,7 +30676,7 @@
 
 	var _routes2 = _interopRequireDefault(_routes);
 
-	var _messages = __webpack_require__(221);
+	var _messages = __webpack_require__(224);
 
 	var _messages2 = _interopRequireDefault(_messages);
 
@@ -30813,7 +30813,7 @@
 
 	var _quadrinhos2 = _interopRequireDefault(_quadrinhos);
 
-	var _about = __webpack_require__(220);
+	var _about = __webpack_require__(223);
 
 	var _about2 = _interopRequireDefault(_about);
 
@@ -46825,6 +46825,10 @@
 
 	var _reactReduxToastr = __webpack_require__(185);
 
+	var _emailjsCom = __webpack_require__(220);
+
+	var _emailjsCom2 = _interopRequireDefault(_emailjsCom);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -46832,6 +46836,9 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	(0, _emailjsCom.init)("user_obfFM60jhEZz4SnVfNc4T");
+
 
 	var mensagem = '';
 
@@ -46846,7 +46853,6 @@
 	        _this.state = { from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email' };
 	        _this.handleChange = _this.handleChange.bind(_this);
 	        _this.handleSubmit = _this.handleSubmit.bind(_this);
-	        _this.mountMessage = _this.mountMessage.bind(_this);
 	        return _this;
 	    }
 
@@ -46915,7 +46921,7 @@
 	    }, {
 	        key: 'sendFeedback',
 	        value: function sendFeedback(templateId, variables) {
-	            window.emailjs.send('gmail', templateId, variables).then(function (res) {
+	            _emailjsCom2.default.send('gmail', templateId, variables).then(function (res) {
 	                _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinhos enviados com sucesso para o email digitado');
 	            })
 	            // Handle errors here however you like, or use a React error boundary
@@ -46932,6 +46938,176 @@
 
 /***/ }),
 /* 220 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.EmailJSResponseStatus = exports.sendForm = exports.send = exports.init = void 0;
+	var EmailJSResponseStatus_1 = __webpack_require__(221);
+	Object.defineProperty(exports, "EmailJSResponseStatus", { enumerable: true, get: function () { return EmailJSResponseStatus_1.EmailJSResponseStatus; } });
+	var UI_1 = __webpack_require__(222);
+	var _userID = null;
+	var _origin = 'https://api.emailjs.com';
+	function sendPost(url, data, headers) {
+	    if (headers === void 0) { headers = {}; }
+	    return new Promise(function (resolve, reject) {
+	        var xhr = new XMLHttpRequest();
+	        xhr.addEventListener('load', function (event) {
+	            var responseStatus = new EmailJSResponseStatus_1.EmailJSResponseStatus(event.target);
+	            if (responseStatus.status === 200 || responseStatus.text === 'OK') {
+	                resolve(responseStatus);
+	            }
+	            else {
+	                reject(responseStatus);
+	            }
+	        });
+	        xhr.addEventListener('error', function (event) {
+	            reject(new EmailJSResponseStatus_1.EmailJSResponseStatus(event.target));
+	        });
+	        xhr.open('POST', url, true);
+	        for (var key in headers) {
+	            xhr.setRequestHeader(key, headers[key]);
+	        }
+	        xhr.send(data);
+	    });
+	}
+	function appendGoogleCaptcha(templatePrams) {
+	    var element = document && document.getElementById('g-recaptcha-response');
+	    if (element && element.value) {
+	        templatePrams['g-recaptcha-response'] = element.value;
+	    }
+	    element = null;
+	    return templatePrams;
+	}
+	function fixIdSelector(selector) {
+	    if (selector[0] !== '#' && selector[0] !== '.') {
+	        return '#' + selector;
+	    }
+	    return selector;
+	}
+	/**
+	 * Initiation
+	 * @param {string} userID - set the EmailJS user ID
+	 * @param {string} origin - set the EmailJS origin
+	 */
+	function init(userID, origin) {
+	    _userID = userID;
+	    _origin = origin || 'https://api.emailjs.com';
+	}
+	exports.init = init;
+	/**
+	 * Send a template to the specific EmailJS service
+	 * @param {string} serviceID - the EmailJS service ID
+	 * @param {string} templateID - the EmailJS template ID
+	 * @param {Object} templatePrams - the template params, what will be set to the EmailJS template
+	 * @param {string} userID - the EmailJS user ID
+	 * @returns {Promise<EmailJSResponseStatus>}
+	 */
+	function send(serviceID, templateID, templatePrams, userID) {
+	    var params = {
+	        lib_version: '2.6.4',
+	        user_id: userID || _userID,
+	        service_id: serviceID,
+	        template_id: templateID,
+	        template_params: appendGoogleCaptcha(templatePrams)
+	    };
+	    return sendPost(_origin + '/api/v1.0/email/send', JSON.stringify(params), {
+	        'Content-type': 'application/json'
+	    });
+	}
+	exports.send = send;
+	/**
+	 * Send a form the specific EmailJS service
+	 * @param {string} serviceID - the EmailJS service ID
+	 * @param {string} templateID - the EmailJS template ID
+	 * @param {string | HTMLFormElement} form - the form element or selector
+	 * @param {string} userID - the EmailJS user ID
+	 * @returns {Promise<EmailJSResponseStatus>}
+	 */
+	function sendForm(serviceID, templateID, form, userID) {
+	    if (typeof form === 'string') {
+	        form = document.querySelector(fixIdSelector(form));
+	    }
+	    if (!form || form.nodeName !== 'FORM') {
+	        throw 'Expected the HTML form element or the style selector of form';
+	    }
+	    UI_1.UI.progressState(form);
+	    var formData = new FormData(form);
+	    formData.append('lib_version', '2.6.4');
+	    formData.append('service_id', serviceID);
+	    formData.append('template_id', templateID);
+	    formData.append('user_id', userID || _userID);
+	    return sendPost(_origin + '/api/v1.0/email/send-form', formData)
+	        .then(function (response) {
+	        UI_1.UI.successState(form);
+	        return response;
+	    }, function (error) {
+	        UI_1.UI.errorState(form);
+	        return Promise.reject(error);
+	    });
+	}
+	exports.sendForm = sendForm;
+	exports.default = {
+	    init: init,
+	    send: send,
+	    sendForm: sendForm
+	};
+
+
+/***/ }),
+/* 221 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.EmailJSResponseStatus = void 0;
+	var EmailJSResponseStatus = /** @class */ (function () {
+	    function EmailJSResponseStatus(httpResponse) {
+	        this.status = httpResponse.status;
+	        this.text = httpResponse.responseText;
+	    }
+	    return EmailJSResponseStatus;
+	}());
+	exports.EmailJSResponseStatus = EmailJSResponseStatus;
+
+
+/***/ }),
+/* 222 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.UI = void 0;
+	var UI = /** @class */ (function () {
+	    function UI() {
+	    }
+	    UI.clearAll = function (form) {
+	        form.classList.remove(this.PROGRESS);
+	        form.classList.remove(this.DONE);
+	        form.classList.remove(this.ERROR);
+	    };
+	    UI.progressState = function (form) {
+	        this.clearAll(form);
+	        form.classList.add(this.PROGRESS);
+	    };
+	    UI.successState = function (form) {
+	        form.classList.remove(this.PROGRESS);
+	        form.classList.add(this.DONE);
+	    };
+	    UI.errorState = function (form) {
+	        form.classList.remove(this.PROGRESS);
+	        form.classList.add(this.ERROR);
+	    };
+	    UI.PROGRESS = 'emailjs-sending';
+	    UI.DONE = 'emailjs-success';
+	    UI.ERROR = 'emailjs-error';
+	    return UI;
+	}());
+	exports.UI = UI;
+
+
+/***/ }),
+/* 223 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46997,7 +47173,7 @@
 	};
 
 /***/ }),
-/* 221 */
+/* 224 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47014,7 +47190,7 @@
 
 	var _reactReduxToastr2 = _interopRequireDefault(_reactReduxToastr);
 
-	__webpack_require__(222);
+	__webpack_require__(225);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47030,14 +47206,14 @@
 	};
 
 /***/ }),
-/* 222 */
+/* 225 */
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 223 */,
-/* 224 */
+/* 226 */,
+/* 227 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47048,13 +47224,13 @@
 
 	var _redux = __webpack_require__(148);
 
-	var _quadrinhosReducer = __webpack_require__(225);
+	var _quadrinhosReducer = __webpack_require__(228);
 
 	var _quadrinhosReducer2 = _interopRequireDefault(_quadrinhosReducer);
 
 	var _reactReduxToastr = __webpack_require__(185);
 
-	var _reduxModal = __webpack_require__(226);
+	var _reduxModal = __webpack_require__(229);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47067,7 +47243,7 @@
 	exports.default = rootReducer;
 
 /***/ }),
-/* 225 */
+/* 228 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -47099,7 +47275,7 @@
 	};
 
 /***/ }),
-/* 226 */
+/* 229 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47107,15 +47283,15 @@
 	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 	}
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var reducer_1 = __webpack_require__(227);
+	var reducer_1 = __webpack_require__(230);
 	exports.reducer = reducer_1.default;
-	var connectModal_1 = __webpack_require__(229);
+	var connectModal_1 = __webpack_require__(232);
 	exports.connectModal = connectModal_1.default;
-	__export(__webpack_require__(230));
+	__export(__webpack_require__(233));
 
 
 /***/ }),
-/* 227 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47128,7 +47304,7 @@
 	    return t;
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var actionTypes_1 = __webpack_require__(228);
+	var actionTypes_1 = __webpack_require__(231);
 	var initialState = {};
 	exports.default = (function (state, action) {
 	    if (state === void 0) { state = initialState; }
@@ -47153,7 +47329,7 @@
 
 
 /***/ }),
-/* 228 */
+/* 231 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -47164,7 +47340,7 @@
 
 
 /***/ }),
-/* 229 */
+/* 232 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47200,8 +47376,8 @@
 	var PropTypes = __webpack_require__(40);
 	var redux_1 = __webpack_require__(148);
 	var react_redux_1 = __webpack_require__(131);
-	var actions_1 = __webpack_require__(230);
-	var utils_1 = __webpack_require__(231);
+	var actions_1 = __webpack_require__(233);
+	var utils_1 = __webpack_require__(234);
 	var hoistStatics = __webpack_require__(71);
 	var INITIAL_MODAL_STATE = {};
 	function connectModal(_a) {
@@ -47283,12 +47459,12 @@
 
 
 /***/ }),
-/* 230 */
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var actionTypes_1 = __webpack_require__(228);
+	var actionTypes_1 = __webpack_require__(231);
 	function show(modal, props) {
 	    if (props === void 0) { props = {}; }
 	    return {
@@ -47321,7 +47497,7 @@
 
 
 /***/ }),
-/* 231 */
+/* 234 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -47346,7 +47522,7 @@
 
 
 /***/ }),
-/* 232 */
+/* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47357,7 +47533,7 @@
 
 	exports['default'] = promiseMiddleware;
 
-	var _fluxStandardAction = __webpack_require__(233);
+	var _fluxStandardAction = __webpack_require__(236);
 
 	function isPromise(val) {
 	  return val && typeof val.then === 'function';
@@ -47384,7 +47560,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 233 */
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47395,7 +47571,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodashIsplainobject = __webpack_require__(234);
+	var _lodashIsplainobject = __webpack_require__(237);
 
 	var _lodashIsplainobject2 = _interopRequireDefault(_lodashIsplainobject);
 
@@ -47414,7 +47590,7 @@
 	}
 
 /***/ }),
-/* 234 */
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -47425,9 +47601,9 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var baseFor = __webpack_require__(235),
-	    isArguments = __webpack_require__(236),
-	    keysIn = __webpack_require__(237);
+	var baseFor = __webpack_require__(238),
+	    isArguments = __webpack_require__(239),
+	    keysIn = __webpack_require__(240);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -47523,7 +47699,7 @@
 
 
 /***/ }),
-/* 235 */
+/* 238 */
 /***/ (function(module, exports) {
 
 	/**
@@ -47577,7 +47753,7 @@
 
 
 /***/ }),
-/* 236 */
+/* 239 */
 /***/ (function(module, exports) {
 
 	/**
@@ -47812,7 +47988,7 @@
 
 
 /***/ }),
-/* 237 */
+/* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -47823,8 +47999,8 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var isArguments = __webpack_require__(236),
-	    isArray = __webpack_require__(238);
+	var isArguments = __webpack_require__(239),
+	    isArray = __webpack_require__(241);
 
 	/** Used to detect unsigned integer values. */
 	var reIsUint = /^\d+$/;
@@ -47950,7 +48126,7 @@
 
 
 /***/ }),
-/* 238 */
+/* 241 */
 /***/ (function(module, exports) {
 
 	/**
@@ -48136,7 +48312,7 @@
 
 
 /***/ }),
-/* 239 */
+/* 242 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -48165,7 +48341,7 @@
 	exports.default = multi;
 
 /***/ }),
-/* 240 */
+/* 243 */
 /***/ (function(module, exports) {
 
 	'use strict';
