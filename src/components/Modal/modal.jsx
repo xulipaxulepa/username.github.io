@@ -44,7 +44,7 @@ export default props => (
     </Card>
     </div>
     <div className='center'>
-        <IconButton title='Selecionar Quadrinho' style='success' ></IconButton>
+        <IconButton title='Selecionar Quadrinho' style='success' onClick={() => props.onSelect(props.quadrinho)}></IconButton>
     </div>
     </div>
 )

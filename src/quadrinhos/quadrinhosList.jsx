@@ -6,6 +6,7 @@ import ComicBook from '../template/comicBook'
 import { toastr } from 'react-redux-toastr'
 import Modal from 'react-modal'
 import MyModal from '../components/Modal/modal'
+import ModalEmail from '../components/Modal/modalEmail'
 
 const selectedList = []
 
@@ -39,7 +40,7 @@ class quadrinhosList extends Component {
     }
 
     showModal(value, quadrinhos) {
-        let data = new Date(quadrinhos.dates[1].date);
+        let data = new Date(quadrinhos.dates[0].date);
         let dataFormatada = ((data.getDate() + "/" + ((data.getMonth() + 1)) + "/" + data.getFullYear() )) ;
         quadrinhos.dates[1].date = dataFormatada.toString()
         this.setState({...this.state, showModal: value, selectedComic: quadrinhos})
@@ -52,6 +53,7 @@ class quadrinhosList extends Component {
     selectComics(quadrinhos) {
         selectedList.push(quadrinhos)
         toastr.success('Sucesso!', 'Quadrinho selecionado com sucesso!')
+        this.closeModal(false, quadrinhos)
     }
 
     renderRows(){
@@ -71,12 +73,12 @@ class quadrinhosList extends Component {
         return (
         <div>
             <Modal isOpen={this.state.showModal} style={customStyles}>
-                <MyModal quadrinho={this.state.selectedComic} onClose={this.closeModal}/>
+                <MyModal quadrinho={this.state.selectedComic} onClose={this.closeModal} onSelect={this.selectComics}/>
             </Modal>
             <Row>
                 {this.renderRows()}
             </Row>
-            <IconButton title='Eviar por Email' style='success' icon='check'></IconButton>
+            <ModalEmail listQuadrinhos={selectedList}/>
         </div>
         )
     } 
