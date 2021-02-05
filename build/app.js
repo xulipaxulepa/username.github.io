@@ -62,19 +62,19 @@
 
 	var _reactRedux = __webpack_require__(131);
 
-	var _reducers = __webpack_require__(223);
+	var _reducers = __webpack_require__(224);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _reduxPromise = __webpack_require__(231);
+	var _reduxPromise = __webpack_require__(232);
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	var _reduxMulti = __webpack_require__(238);
+	var _reduxMulti = __webpack_require__(239);
 
 	var _reduxMulti2 = _interopRequireDefault(_reduxMulti);
 
-	var _reduxThunk = __webpack_require__(239);
+	var _reduxThunk = __webpack_require__(240);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
@@ -30676,7 +30676,7 @@
 
 	var _routes2 = _interopRequireDefault(_routes);
 
-	var _messages = __webpack_require__(220);
+	var _messages = __webpack_require__(221);
 
 	var _messages2 = _interopRequireDefault(_messages);
 
@@ -30813,7 +30813,7 @@
 
 	var _quadrinhos2 = _interopRequireDefault(_quadrinhos);
 
-	var _about = __webpack_require__(219);
+	var _about = __webpack_require__(220);
 
 	var _about2 = _interopRequireDefault(_about);
 
@@ -42458,6 +42458,10 @@
 
 	var _modal2 = _interopRequireDefault(_modal);
 
+	var _modalEmail = __webpack_require__(219);
+
+	var _modalEmail2 = _interopRequireDefault(_modalEmail);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -42506,7 +42510,7 @@
 	    }, {
 	        key: 'showModal',
 	        value: function showModal(value, quadrinhos) {
-	            var data = new Date(quadrinhos.dates[1].date);
+	            var data = new Date(quadrinhos.dates[0].date);
 	            var dataFormatada = data.getDate() + "/" + (data.getMonth() + 1) + "/" + data.getFullYear();
 	            quadrinhos.dates[1].date = dataFormatada.toString();
 	            this.setState(_extends({}, this.state, { showModal: value, selectedComic: quadrinhos }));
@@ -42521,6 +42525,7 @@
 	        value: function selectComics(quadrinhos) {
 	            selectedList.push(quadrinhos);
 	            _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinho selecionado com sucesso!');
+	            this.closeModal(false, quadrinhos);
 	        }
 	    }, {
 	        key: 'renderRows',
@@ -42552,14 +42557,14 @@
 	                _react2.default.createElement(
 	                    _reactModal2.default,
 	                    { isOpen: this.state.showModal, style: customStyles },
-	                    _react2.default.createElement(_modal2.default, { quadrinho: this.state.selectedComic, onClose: this.closeModal })
+	                    _react2.default.createElement(_modal2.default, { quadrinho: this.state.selectedComic, onClose: this.closeModal, onSelect: this.selectComics })
 	                ),
 	                _react2.default.createElement(
 	                    _row2.default,
 	                    null,
 	                    this.renderRows()
 	                ),
-	                _react2.default.createElement(_iconButton2.default, { title: 'Eviar por Email', style: 'success', icon: 'check' })
+	                _react2.default.createElement(_modalEmail2.default, { listQuadrinhos: selectedList })
 	            );
 	        }
 	    }]);
@@ -46742,7 +46747,9 @@
 	        _react2.default.createElement(
 	            'div',
 	            { className: 'center' },
-	            _react2.default.createElement(_iconButton2.default, { title: 'Selecionar Quadrinho', style: 'success' })
+	            _react2.default.createElement(_iconButton2.default, { title: 'Selecionar Quadrinho', style: 'success', onClick: function onClick() {
+	                    return props.onSelect(props.quadrinho);
+	                } })
 	        )
 	    );
 	};
@@ -46798,6 +46805,133 @@
 /***/ }),
 /* 218 */,
 /* 219 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _iconButton = __webpack_require__(176);
+
+	var _iconButton2 = _interopRequireDefault(_iconButton);
+
+	var _reactReduxToastr = __webpack_require__(185);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var mensagem = '';
+
+	var modalEmail = function (_Component) {
+	    _inherits(modalEmail, _Component);
+
+	    function modalEmail(props) {
+	        _classCallCheck(this, modalEmail);
+
+	        var _this = _possibleConstructorReturn(this, (modalEmail.__proto__ || Object.getPrototypeOf(modalEmail)).call(this, props));
+
+	        _this.state = { from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email' };
+	        _this.handleChange = _this.handleChange.bind(_this);
+	        _this.handleSubmit = _this.handleSubmit.bind(_this);
+	        _this.mountMessage = _this.mountMessage.bind(_this);
+	        return _this;
+	    }
+
+	    _createClass(modalEmail, [{
+	        key: 'mountMessage',
+	        value: function mountMessage() {
+	            if (this.props.listQuadrinhos.length > 0) {
+	                this.props.listQuadrinhos.map(function (quadrinho) {
+	                    return mensagem += '<img src=' + (quadrinho.thumbnail.path + "." + quadrinho.thumbnail.extension) + ' alt="My Impression">\n                <h2>titulo</h2>\n                <p>' + quadrinho.title + '</p>\n                <h2>Data lan\xE7amento</h2>\n                <p>' + quadrinho.dates[1].date + '</p>\n                <h2>Numero de p\xE1ginas</h2>\n                <p>' + quadrinho.pageCount + '</p>';
+	                });
+	                console.log(mensagem);
+	            }
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'center' },
+	                _react2.default.createElement(
+	                    'form',
+	                    { className: 'test-mailing' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        null,
+	                        _react2.default.createElement(
+	                            'label',
+	                            { className: 'about' },
+	                            'Receba os quadrinhos selecionados via E-Mail'
+	                        ),
+	                        _react2.default.createElement('input', {
+	                            id: 'test-mailing',
+	                            name: 'test-mailing',
+	                            onChange: this.handleChange,
+	                            placeholder: 'Digite seu email!',
+	                            required: true,
+	                            value: this.state.to_email,
+	                            style: { width: '100%' }
+	                        })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'center' },
+	                        _react2.default.createElement(_iconButton2.default, { title: 'Enviar quadrinhos por email', style: 'success', onClick: this.handleSubmit })
+	                    )
+	                )
+	            );
+	        }
+	    }, {
+	        key: 'handleChange',
+	        value: function handleChange(event) {
+	            this.setState({ to_email: event.target.value });
+	        }
+	    }, {
+	        key: 'handleSubmit',
+	        value: function handleSubmit(event) {
+	            if (this.props.listQuadrinhos.length == 0) {
+	                _reactReduxToastr.toastr.warning('Cuidado!', 'Você não selecionou nenhum quadrinho!');
+	            } else {
+	                this.mountMessage();
+	                var templateId = 'template_4dbwqqn';
+
+	                this.sendFeedback(templateId, { from_name: this.state.from_name, message: mensagem, to_email: this.state.to_email });
+	            }
+	        }
+	    }, {
+	        key: 'sendFeedback',
+	        value: function sendFeedback(templateId, variables) {
+	            window.emailjs.send('gmail', templateId, variables).then(function (res) {
+	                _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinhos enviados com sucesso para o email digitado');
+	            })
+	            // Handle errors here however you like, or use a React error boundary
+	            .catch(function (err) {
+	                return _reactReduxToastr.toastr.error('Erro!', 'Houve um erro no envio, você digitou um email valido?');
+	            });
+	        }
+	    }]);
+
+	    return modalEmail;
+	}(_react.Component);
+
+	exports.default = modalEmail;
+
+/***/ }),
+/* 220 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46863,7 +46997,7 @@
 	};
 
 /***/ }),
-/* 220 */
+/* 221 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46880,7 +47014,7 @@
 
 	var _reactReduxToastr2 = _interopRequireDefault(_reactReduxToastr);
 
-	__webpack_require__(221);
+	__webpack_require__(222);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -46896,14 +47030,14 @@
 	};
 
 /***/ }),
-/* 221 */
+/* 222 */
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 222 */,
-/* 223 */
+/* 223 */,
+/* 224 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46914,13 +47048,13 @@
 
 	var _redux = __webpack_require__(148);
 
-	var _quadrinhosReducer = __webpack_require__(224);
+	var _quadrinhosReducer = __webpack_require__(225);
 
 	var _quadrinhosReducer2 = _interopRequireDefault(_quadrinhosReducer);
 
 	var _reactReduxToastr = __webpack_require__(185);
 
-	var _reduxModal = __webpack_require__(225);
+	var _reduxModal = __webpack_require__(226);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -46933,7 +47067,7 @@
 	exports.default = rootReducer;
 
 /***/ }),
-/* 224 */
+/* 225 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -46965,7 +47099,7 @@
 	};
 
 /***/ }),
-/* 225 */
+/* 226 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -46973,15 +47107,15 @@
 	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 	}
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var reducer_1 = __webpack_require__(226);
+	var reducer_1 = __webpack_require__(227);
 	exports.reducer = reducer_1.default;
-	var connectModal_1 = __webpack_require__(228);
+	var connectModal_1 = __webpack_require__(229);
 	exports.connectModal = connectModal_1.default;
-	__export(__webpack_require__(229));
+	__export(__webpack_require__(230));
 
 
 /***/ }),
-/* 226 */
+/* 227 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -46994,7 +47128,7 @@
 	    return t;
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var actionTypes_1 = __webpack_require__(227);
+	var actionTypes_1 = __webpack_require__(228);
 	var initialState = {};
 	exports.default = (function (state, action) {
 	    if (state === void 0) { state = initialState; }
@@ -47019,7 +47153,7 @@
 
 
 /***/ }),
-/* 227 */
+/* 228 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -47030,7 +47164,7 @@
 
 
 /***/ }),
-/* 228 */
+/* 229 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47066,8 +47200,8 @@
 	var PropTypes = __webpack_require__(40);
 	var redux_1 = __webpack_require__(148);
 	var react_redux_1 = __webpack_require__(131);
-	var actions_1 = __webpack_require__(229);
-	var utils_1 = __webpack_require__(230);
+	var actions_1 = __webpack_require__(230);
+	var utils_1 = __webpack_require__(231);
 	var hoistStatics = __webpack_require__(71);
 	var INITIAL_MODAL_STATE = {};
 	function connectModal(_a) {
@@ -47149,12 +47283,12 @@
 
 
 /***/ }),
-/* 229 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var actionTypes_1 = __webpack_require__(227);
+	var actionTypes_1 = __webpack_require__(228);
 	function show(modal, props) {
 	    if (props === void 0) { props = {}; }
 	    return {
@@ -47187,7 +47321,7 @@
 
 
 /***/ }),
-/* 230 */
+/* 231 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -47212,7 +47346,7 @@
 
 
 /***/ }),
-/* 231 */
+/* 232 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47223,7 +47357,7 @@
 
 	exports['default'] = promiseMiddleware;
 
-	var _fluxStandardAction = __webpack_require__(232);
+	var _fluxStandardAction = __webpack_require__(233);
 
 	function isPromise(val) {
 	  return val && typeof val.then === 'function';
@@ -47250,7 +47384,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 232 */
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47261,7 +47395,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodashIsplainobject = __webpack_require__(233);
+	var _lodashIsplainobject = __webpack_require__(234);
 
 	var _lodashIsplainobject2 = _interopRequireDefault(_lodashIsplainobject);
 
@@ -47280,7 +47414,7 @@
 	}
 
 /***/ }),
-/* 233 */
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -47291,9 +47425,9 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var baseFor = __webpack_require__(234),
-	    isArguments = __webpack_require__(235),
-	    keysIn = __webpack_require__(236);
+	var baseFor = __webpack_require__(235),
+	    isArguments = __webpack_require__(236),
+	    keysIn = __webpack_require__(237);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -47389,7 +47523,7 @@
 
 
 /***/ }),
-/* 234 */
+/* 235 */
 /***/ (function(module, exports) {
 
 	/**
@@ -47443,7 +47577,7 @@
 
 
 /***/ }),
-/* 235 */
+/* 236 */
 /***/ (function(module, exports) {
 
 	/**
@@ -47678,7 +47812,7 @@
 
 
 /***/ }),
-/* 236 */
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -47689,8 +47823,8 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var isArguments = __webpack_require__(235),
-	    isArray = __webpack_require__(237);
+	var isArguments = __webpack_require__(236),
+	    isArray = __webpack_require__(238);
 
 	/** Used to detect unsigned integer values. */
 	var reIsUint = /^\d+$/;
@@ -47816,7 +47950,7 @@
 
 
 /***/ }),
-/* 237 */
+/* 238 */
 /***/ (function(module, exports) {
 
 	/**
@@ -48002,7 +48136,7 @@
 
 
 /***/ }),
-/* 238 */
+/* 239 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -48031,7 +48165,7 @@
 	exports.default = multi;
 
 /***/ }),
-/* 239 */
+/* 240 */
 /***/ (function(module, exports) {
 
 	'use strict';
