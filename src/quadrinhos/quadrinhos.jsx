@@ -7,6 +7,7 @@ import List from './quadrinhosList'
 import Card from '../components/Card/card'
 
 import {BASE_URL, API_KEY} from '../enviroments/enviroment'
+import Loader from '../components/Loader/loader'
 
 export default class quadrinhos extends Component {
     
@@ -15,7 +16,7 @@ export default class quadrinhos extends Component {
         this.handleChange = this.handleChange.bind(this)
         this.handleSearche = this.handleSearche.bind(this)
         this.handleClear = this.handleClear.bind(this)
-        this.state = {description: '', list: []}
+        this.state = {description: '', list: [], isLoading: true}
 
         this.refresh()
     }
@@ -27,14 +28,16 @@ export default class quadrinhos extends Component {
             axios.get(`${BASE_URL}comics?apikey=${API_KEY}`).then(resp => this.setState(
                 {...this.state, 
                     description, 
-                    list: resp.data
+                    list: resp.data,
+                    isLoading: false
                 })
             )
         } else {
             axios.get(`${BASE_URL}comics?title=${search}&apikey=${API_KEY}`).then(resp => this.setState(
                 {...this.state, 
                     description, 
-                    list: resp.data
+                    list: resp.data,
+                    isLoading: false
                 })
             )
         }
@@ -43,7 +46,7 @@ export default class quadrinhos extends Component {
 
     handleChange(e){
         console.log(e.target.value)
-        this.setState({...this.state, description: e.target.value})
+        this.setState({...this.state, description: e.target.value, isLoading: true})
     }
 
     handleSearche(){
@@ -55,7 +58,7 @@ export default class quadrinhos extends Component {
     }
 
     render() {
-        return (
+       return (
             <div>
                 <Card black>
                 <PageHeader name='Quadrinhos Marvel' small='Os maiores heróis do universo' />
@@ -65,6 +68,7 @@ export default class quadrinhos extends Component {
                 handleClear={this.handleClear}/>
                 </Card>
                 <Card grey>
+                <Loader isLoading={this.state.isLoading}/>
                 <List list={this.state.list}/>
                 </Card>
             </div>

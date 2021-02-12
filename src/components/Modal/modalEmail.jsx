@@ -4,13 +4,14 @@ import { toastr } from 'react-redux-toastr'
 import{ init } from 'emailjs-com';
 init("user_obfFM60jhEZz4SnVfNc4T");
 import emailjs from 'emailjs-com';
+import LoaderEmail from '../Loader/loaderEmail'
 
 let mensagem = '';
 
 export default class modalEmail extends Component {
     constructor(props) {
         super(props);
-        this.state = { from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email' };
+        this.state = { from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email', isLoading: false };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -34,9 +35,10 @@ export default class modalEmail extends Component {
     render() {
         return (
             <div className='center'>
+                <LoaderEmail isLoading={this.state.isLoading}>
                 <form className="test-mailing">
                     <div>
-                        <label className='about'>Receba os quadrinhos selecionados via E-Mail</label>
+                        <label className='about labelemailcentralizada'>Receba os quadrinhos selecionados via E-Mail</label>
                         <input
                             id="test-mailing"
                             name="test-mailing"
@@ -51,6 +53,7 @@ export default class modalEmail extends Component {
                     <IconButton title='Enviar quadrinhos por email' style='success' onClick={this.handleSubmit}></IconButton>
                     </div>
                 </form>
+                </LoaderEmail>
             </div>
         )
     }
@@ -65,7 +68,7 @@ export default class modalEmail extends Component {
         } else {
             this.mountMessage();
             const templateId = 'template_4dbwqqn';
-
+            this.setState({ isLoading: true })
             this.sendFeedback(templateId, { from_name: this.state.from_name, message: mensagem, to_email: this.state.to_email })
         }
     }
@@ -75,9 +78,13 @@ export default class modalEmail extends Component {
             'gmail', templateId,
             variables
         ).then(res => {
+            this.setState({ isLoading: false }),
             toastr.success('Sucesso!', 'Quadrinhos enviados com sucesso para o email digitado')
         })
             // Handle errors here however you like, or use a React error boundary
-            .catch(err => toastr.error('Erro!', 'Houve um erro no envio, você digitou um email valido?'))
+            .catch(err => {
+                this.setState({ isLoading: false }),
+                toastr.error('Erro!', 'Houve um erro no envio, você digitou um email valido?')
+            })
     }
 }

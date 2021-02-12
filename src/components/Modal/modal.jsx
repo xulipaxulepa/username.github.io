@@ -17,7 +17,7 @@ export default props => (
         
 
         <div id='navbar' className='navbar-right navbar-collapse collapse'>
-            <ul className='nav navbar-nav'>
+            <ul className='nav navbar-nav botaosairmodal'>
                 <li><IconButton title='Sair' style='danger' onClick={() => props.onClose(false, props.quadrinho)}></IconButton></li>
             </ul>
         </div>
@@ -43,8 +43,8 @@ export default props => (
     </If>
     </Card>
     </div>
-    <div className='center'>
-        <IconButton title='Selecionar Quadrinho' style='success' onClick={() => props.onSelect(props.quadrinho)}></IconButton>
+    <div className='botaomodalselectquadrinho'>
+        <IconButton title={props.quadrinho.isSelected? 'Desselecionar Quadrinho': 'Selecionar Quadrinho'} style={props.quadrinho.isSelected? 'danger': 'success'} onClick={() => props.onSelect(props.quadrinho)}></IconButton>
     </div>
     </div>
 )

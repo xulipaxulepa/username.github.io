@@ -44,6 +44,7 @@
     "webpack-dev-server": "^1.16.2"
   },
   "dependencies": {
+    "@agney/react-loading": "^0.1.2",
     "emailjs-com": "^2.6.4",
     "react-scripts": "^4.0.2"
   }

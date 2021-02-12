@@ -51,9 +51,21 @@ class quadrinhosList extends Component {
     }
 
     selectComics(quadrinhos) {
-        selectedList.push(quadrinhos)
-        toastr.success('Sucesso!', 'Quadrinho selecionado com sucesso!')
-        this.closeModal(false, quadrinhos)
+        if(quadrinhos.isSelected){
+            quadrinhos.isSelected = false
+            const index = selectedList.indexOf(quadrinhos);
+            if (index > -1) {
+                selectedList.splice(index, 1);
+            }
+            toastr.light('Sucesso!', 'Quadrinho removido da seleção!')
+            this.closeModal(false, quadrinhos)    
+        } else {
+            quadrinhos.isSelected = true
+            selectedList.push(quadrinhos)
+            toastr.success('Sucesso!', 'Quadrinho selecionado com sucesso!')
+            this.closeModal(false, quadrinhos)
+        }
+        console.log(selectedList)
     }
 
     renderRows(){
@@ -62,8 +74,10 @@ class quadrinhosList extends Component {
                <ComicBook key={quadrinhos.id} 
                title={quadrinhos.title} 
                comicCover={quadrinhos.thumbnail.path +"."+ quadrinhos.thumbnail.extension}>
-                   <IconButton title='Selecionar' style='success' icon='check' onClick={() => this.selectComics(quadrinhos)}></IconButton>
+                   <div className='botoesquadrinho'>
+                   <IconButton title={quadrinhos.isSelected? 'Desselecionar': 'Selecionar'} style={quadrinhos.isSelected? 'danger': 'success'} icon={quadrinhos.isSelected? 'window-close': 'check'} onClick={() => this.selectComics(quadrinhos)}></IconButton>
                    <IconButton title='Ver detalhes' style='success' onClick={() => this.showModal(true, quadrinhos)}></IconButton>
+                   </div>
                </ComicBook>
                
         ))

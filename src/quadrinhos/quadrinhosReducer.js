@@ -1,4 +1,4 @@
-const INITIAL_STATE = { description: '', list: [] }
+const INITIAL_STATE = { description: '', list: [], isLoading: true }
 
 
 export default (state = INITIAL_STATE, action) => {

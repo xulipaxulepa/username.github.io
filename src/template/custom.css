@@ -1,3 +1,29 @@
+.labelemailcentralizada {
+  margin-left: 70px;
+}
+
+.loader {
+  text-align: center;
+}
+
+.naomostraemail {
+  display: none;
+}
+
+.botaomodalselectquadrinho {
+  margin-left: 40%;
+  padding: 10px;
+}
+
+.botaosairmodal {
+  margin-top: 15%;
+}
+
+.botoesquadrinho {
+  margin-top: 10px;
+  margin-left: 5px;
+}
+
 .btn {
     margin-right: 5px;
 }

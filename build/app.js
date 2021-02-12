@@ -62,19 +62,19 @@
 
 	var _reactRedux = __webpack_require__(131);
 
-	var _reducers = __webpack_require__(227);
+	var _reducers = __webpack_require__(233);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _reduxPromise = __webpack_require__(235);
+	var _reduxPromise = __webpack_require__(241);
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	var _reduxMulti = __webpack_require__(242);
+	var _reduxMulti = __webpack_require__(248);
 
 	var _reduxMulti2 = _interopRequireDefault(_reduxMulti);
 
-	var _reduxThunk = __webpack_require__(243);
+	var _reduxThunk = __webpack_require__(249);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
@@ -30676,7 +30676,7 @@
 
 	var _routes2 = _interopRequireDefault(_routes);
 
-	var _messages = __webpack_require__(224);
+	var _messages = __webpack_require__(230);
 
 	var _messages2 = _interopRequireDefault(_messages);
 
@@ -30813,7 +30813,7 @@
 
 	var _quadrinhos2 = _interopRequireDefault(_quadrinhos);
 
-	var _about = __webpack_require__(223);
+	var _about = __webpack_require__(229);
 
 	var _about2 = _interopRequireDefault(_about);
 
@@ -38145,6 +38145,10 @@
 
 	var _enviroment = __webpack_require__(179);
 
+	var _loader = __webpack_require__(228);
+
+	var _loader2 = _interopRequireDefault(_loader);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -38164,7 +38168,7 @@
 	        _this.handleChange = _this.handleChange.bind(_this);
 	        _this.handleSearche = _this.handleSearche.bind(_this);
 	        _this.handleClear = _this.handleClear.bind(_this);
-	        _this.state = { description: '', list: [] };
+	        _this.state = { description: '', list: [], isLoading: true };
 
 	        _this.refresh();
 	        return _this;
@@ -38183,14 +38187,16 @@
 	                _axios2.default.get(_enviroment.BASE_URL + 'comics?apikey=' + _enviroment.API_KEY).then(function (resp) {
 	                    return _this2.setState(_extends({}, _this2.state, {
 	                        description: description,
-	                        list: resp.data
+	                        list: resp.data,
+	                        isLoading: false
 	                    }));
 	                });
 	            } else {
 	                _axios2.default.get(_enviroment.BASE_URL + 'comics?title=' + search + '&apikey=' + _enviroment.API_KEY).then(function (resp) {
 	                    return _this2.setState(_extends({}, _this2.state, {
 	                        description: description,
-	                        list: resp.data
+	                        list: resp.data,
+	                        isLoading: false
 	                    }));
 	                });
 	            }
@@ -38199,7 +38205,7 @@
 	        key: 'handleChange',
 	        value: function handleChange(e) {
 	            console.log(e.target.value);
-	            this.setState(_extends({}, this.state, { description: e.target.value }));
+	            this.setState(_extends({}, this.state, { description: e.target.value, isLoading: true }));
 	        }
 	    }, {
 	        key: 'handleSearche',
@@ -38229,6 +38235,7 @@
 	                _react2.default.createElement(
 	                    _card2.default,
 	                    { grey: true },
+	                    _react2.default.createElement(_loader2.default, { isLoading: this.state.isLoading }),
 	                    _react2.default.createElement(_quadrinhosList2.default, { list: this.state.list })
 	                )
 	            );
@@ -42353,7 +42360,11 @@
 	    if (props.test) {
 	        return props.children;
 	    } else {
-	        return false;
+	        return _react2.default.createElement(
+	            'p',
+	            { className: 'about' },
+	            'Nenhum dado encontrado'
+	        );
 	    }
 	};
 
@@ -42523,9 +42534,21 @@
 	    }, {
 	        key: 'selectComics',
 	        value: function selectComics(quadrinhos) {
-	            selectedList.push(quadrinhos);
-	            _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinho selecionado com sucesso!');
-	            this.closeModal(false, quadrinhos);
+	            if (quadrinhos.isSelected) {
+	                quadrinhos.isSelected = false;
+	                var index = selectedList.indexOf(quadrinhos);
+	                if (index > -1) {
+	                    selectedList.splice(index, 1);
+	                }
+	                _reactReduxToastr.toastr.light('Sucesso!', 'Quadrinho removido da seleção!');
+	                this.closeModal(false, quadrinhos);
+	            } else {
+	                quadrinhos.isSelected = true;
+	                selectedList.push(quadrinhos);
+	                _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinho selecionado com sucesso!');
+	                this.closeModal(false, quadrinhos);
+	            }
+	            console.log(selectedList);
 	        }
 	    }, {
 	        key: 'renderRows',
@@ -42539,12 +42562,16 @@
 	                    { key: quadrinhos.id,
 	                        title: quadrinhos.title,
 	                        comicCover: quadrinhos.thumbnail.path + "." + quadrinhos.thumbnail.extension },
-	                    _react2.default.createElement(_iconButton2.default, { title: 'Selecionar', style: 'success', icon: 'check', onClick: function onClick() {
-	                            return _this2.selectComics(quadrinhos);
-	                        } }),
-	                    _react2.default.createElement(_iconButton2.default, { title: 'Ver detalhes', style: 'success', onClick: function onClick() {
-	                            return _this2.showModal(true, quadrinhos);
-	                        } })
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'botoesquadrinho' },
+	                        _react2.default.createElement(_iconButton2.default, { title: quadrinhos.isSelected ? 'Desselecionar' : 'Selecionar', style: quadrinhos.isSelected ? 'danger' : 'success', icon: quadrinhos.isSelected ? 'window-close' : 'check', onClick: function onClick() {
+	                                return _this2.selectComics(quadrinhos);
+	                            } }),
+	                        _react2.default.createElement(_iconButton2.default, { title: 'Ver detalhes', style: 'success', onClick: function onClick() {
+	                                return _this2.showModal(true, quadrinhos);
+	                            } })
+	                    )
 	                );
 	            });
 	        }
@@ -46660,7 +46687,7 @@
 	                        { id: 'navbar', className: 'navbar-right navbar-collapse collapse' },
 	                        _react2.default.createElement(
 	                            'ul',
-	                            { className: 'nav navbar-nav' },
+	                            { className: 'nav navbar-nav botaosairmodal' },
 	                            _react2.default.createElement(
 	                                'li',
 	                                null,
@@ -46746,8 +46773,8 @@
 	        ),
 	        _react2.default.createElement(
 	            'div',
-	            { className: 'center' },
-	            _react2.default.createElement(_iconButton2.default, { title: 'Selecionar Quadrinho', style: 'success', onClick: function onClick() {
+	            { className: 'botaomodalselectquadrinho' },
+	            _react2.default.createElement(_iconButton2.default, { title: props.quadrinho.isSelected ? 'Desselecionar Quadrinho' : 'Selecionar Quadrinho', style: props.quadrinho.isSelected ? 'danger' : 'success', onClick: function onClick() {
 	                    return props.onSelect(props.quadrinho);
 	                } })
 	        )
@@ -46829,6 +46856,10 @@
 
 	var _emailjsCom2 = _interopRequireDefault(_emailjsCom);
 
+	var _loaderEmail = __webpack_require__(223);
+
+	var _loaderEmail2 = _interopRequireDefault(_loaderEmail);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -46850,7 +46881,7 @@
 
 	        var _this = _possibleConstructorReturn(this, (modalEmail.__proto__ || Object.getPrototypeOf(modalEmail)).call(this, props));
 
-	        _this.state = { from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email' };
+	        _this.state = { from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email', isLoading: false };
 	        _this.handleChange = _this.handleChange.bind(_this);
 	        _this.handleSubmit = _this.handleSubmit.bind(_this);
 	        return _this;
@@ -46873,30 +46904,34 @@
 	                'div',
 	                { className: 'center' },
 	                _react2.default.createElement(
-	                    'form',
-	                    { className: 'test-mailing' },
+	                    _loaderEmail2.default,
+	                    { isLoading: this.state.isLoading },
 	                    _react2.default.createElement(
-	                        'div',
-	                        null,
+	                        'form',
+	                        { className: 'test-mailing' },
 	                        _react2.default.createElement(
-	                            'label',
-	                            { className: 'about' },
-	                            'Receba os quadrinhos selecionados via E-Mail'
+	                            'div',
+	                            null,
+	                            _react2.default.createElement(
+	                                'label',
+	                                { className: 'about labelemailcentralizada' },
+	                                'Receba os quadrinhos selecionados via E-Mail'
+	                            ),
+	                            _react2.default.createElement('input', {
+	                                id: 'test-mailing',
+	                                name: 'test-mailing',
+	                                onChange: this.handleChange,
+	                                placeholder: 'Digite seu email!',
+	                                required: true,
+	                                value: this.state.to_email,
+	                                style: { width: '100%' }
+	                            })
 	                        ),
-	                        _react2.default.createElement('input', {
-	                            id: 'test-mailing',
-	                            name: 'test-mailing',
-	                            onChange: this.handleChange,
-	                            placeholder: 'Digite seu email!',
-	                            required: true,
-	                            value: this.state.to_email,
-	                            style: { width: '100%' }
-	                        })
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'center' },
-	                        _react2.default.createElement(_iconButton2.default, { title: 'Enviar quadrinhos por email', style: 'success', onClick: this.handleSubmit })
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'center' },
+	                            _react2.default.createElement(_iconButton2.default, { title: 'Enviar quadrinhos por email', style: 'success', onClick: this.handleSubmit })
+	                        )
 	                    )
 	                )
 	            );
@@ -46914,19 +46949,21 @@
 	            } else {
 	                this.mountMessage();
 	                var templateId = 'template_4dbwqqn';
-
+	                this.setState({ isLoading: true });
 	                this.sendFeedback(templateId, { from_name: this.state.from_name, message: mensagem, to_email: this.state.to_email });
 	            }
 	        }
 	    }, {
 	        key: 'sendFeedback',
 	        value: function sendFeedback(templateId, variables) {
+	            var _this2 = this;
+
 	            _emailjsCom2.default.send('gmail', templateId, variables).then(function (res) {
-	                _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinhos enviados com sucesso para o email digitado');
+	                _this2.setState({ isLoading: false }), _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinhos enviados com sucesso para o email digitado');
 	            })
 	            // Handle errors here however you like, or use a React error boundary
 	            .catch(function (err) {
-	                return _reactReduxToastr.toastr.error('Erro!', 'Houve um erro no envio, você digitou um email valido?');
+	                _this2.setState({ isLoading: false }), _reactReduxToastr.toastr.error('Erro!', 'Houve um erro no envio, você digitou um email valido?');
 	            });
 	        }
 	    }]);
@@ -47110,6 +47147,1123 @@
 /* 223 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = LoaderEmail;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactLoading = __webpack_require__(224);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function LoaderEmail(props) {
+	  var _useLoading = (0, _reactLoading.useLoading)({
+	    loading: props.isLoading,
+	    loaderProps: {
+	      valueText: 'Enviando email, por favor aguarde!'
+	    },
+	    indicator: _react2.default.createElement(_reactLoading.Bars, { width: "100" })
+	  }),
+	      containerProps = _useLoading.containerProps,
+	      indicatorEl = _useLoading.indicatorEl;
+
+	  return _react2.default.createElement(
+	    "div",
+	    { className: "loader" },
+	    _react2.default.createElement(
+	      "section",
+	      containerProps,
+	      indicatorEl,
+	      " "
+	    ),
+	    _react2.default.createElement(
+	      "div",
+	      { className: props.isLoading ? 'naomostraemail' : '' },
+	      props.children
+	    )
+	  );
+	}
+
+/***/ }),
+/* 224 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {
+	'use strict'
+
+	if (process.env.NODE_ENV === 'production') {
+	  module.exports = __webpack_require__(225)
+	} else {
+	  module.exports = __webpack_require__(227)
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+
+/***/ }),
+/* 225 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";function e(e){return e&&"object"==typeof e&&"default"in e?e.default:e}Object.defineProperty(exports,"__esModule",{value:!0});var t=__webpack_require__(1),r=e(t),a=e(__webpack_require__(226));function n(){return(n=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var i=t.createContext({indicator:null});function l(){return(l=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var c=t.createElement("g",{transform:"matrix(1 0 0 -1 0 80)"},t.createElement("rect",{width:10,height:20,rx:3},t.createElement("animate",{attributeName:"height",begin:"0s",dur:"4.3s",values:"20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("rect",{x:15,width:10,height:80,rx:3},t.createElement("animate",{attributeName:"height",begin:"0s",dur:"2s",values:"80;55;33;5;75;23;73;33;12;14;60;80",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("rect",{x:30,width:10,height:50,rx:3},t.createElement("animate",{attributeName:"height",begin:"0s",dur:"1.4s",values:"50;34;78;23;56;23;34;76;80;54;21;50",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("rect",{x:45,width:10,height:30,rx:3},t.createElement("animate",{attributeName:"height",begin:"0s",dur:"2s",values:"30;45;13;80;56;72;45;76;34;23;67;30",calcMode:"linear",repeatCount:"indefinite"})));function o(){return(o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var u=t.createElement("g",{transform:"translate(1 1)",strokeWidth:2,fill:"none",fillRule:"evenodd"},t.createElement("circle",{cx:5,cy:50,r:5},t.createElement("animate",{attributeName:"cy",begin:"0s",dur:"2.2s",values:"50;5;50;50",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"cx",begin:"0s",dur:"2.2s",values:"5;27;49;5",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:27,cy:5,r:5},t.createElement("animate",{attributeName:"cy",begin:"0s",dur:"2.2s",from:5,to:5,values:"5;50;50;5",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"cx",begin:"0s",dur:"2.2s",from:27,to:27,values:"27;49;5;27",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:49,cy:50,r:5},t.createElement("animate",{attributeName:"cy",begin:"0s",dur:"2.2s",values:"50;50;5;50",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"cx",from:49,to:49,begin:"0s",dur:"2.2s",values:"49;5;27;49",calcMode:"linear",repeatCount:"indefinite"})));function s(){return(s=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var m=t.createElement("rect",{y:10,width:15,height:120,rx:6},t.createElement("animate",{attributeName:"height",begin:"0.5s",dur:"1s",values:"120;110;100;90;80;70;60;50;40;140;120",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"y",begin:"0.5s",dur:"1s",values:"10;15;20;25;30;35;40;45;50;0;10",calcMode:"linear",repeatCount:"indefinite"})),d=t.createElement("rect",{x:30,y:10,width:15,height:120,rx:6},t.createElement("animate",{attributeName:"height",begin:"0.25s",dur:"1s",values:"120;110;100;90;80;70;60;50;40;140;120",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"y",begin:"0.25s",dur:"1s",values:"10;15;20;25;30;35;40;45;50;0;10",calcMode:"linear",repeatCount:"indefinite"})),f=t.createElement("rect",{x:60,width:15,height:140,rx:6},t.createElement("animate",{attributeName:"height",begin:"0s",dur:"1s",values:"120;110;100;90;80;70;60;50;40;140;120",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"y",begin:"0s",dur:"1s",values:"10;15;20;25;30;35;40;45;50;0;10",calcMode:"linear",repeatCount:"indefinite"})),p=t.createElement("rect",{x:90,y:10,width:15,height:120,rx:6},t.createElement("animate",{attributeName:"height",begin:"0.25s",dur:"1s",values:"120;110;100;90;80;70;60;50;40;140;120",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"y",begin:"0.25s",dur:"1s",values:"10;15;20;25;30;35;40;45;50;0;10",calcMode:"linear",repeatCount:"indefinite"})),v=t.createElement("rect",{x:120,y:10,width:15,height:120,rx:6},t.createElement("animate",{attributeName:"height",begin:"0.5s",dur:"1s",values:"120;110;100;90;80;70;60;50;40;140;120",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"y",begin:"0.5s",dur:"1s",values:"10;15;20;25;30;35;40;45;50;0;10",calcMode:"linear",repeatCount:"indefinite"}));function b(){return(b=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var E=t.createElement("path",{d:"M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z"},t.createElement("animateTransform",{attributeName:"transform",type:"rotate",from:"0 67 67",to:"-360 67 67",dur:"2.5s",repeatCount:"indefinite"})),y=t.createElement("path",{d:"M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z"},t.createElement("animateTransform",{attributeName:"transform",type:"rotate",from:"0 67 67",to:"360 67 67",dur:"8s",repeatCount:"indefinite"}));function g(){return(g=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var h=t.createElement("circle",{cx:12.5,cy:12.5,r:12.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"})),x=t.createElement("circle",{cx:12.5,cy:52.5,r:12.5,fillOpacity:.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"100ms",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"})),C=t.createElement("circle",{cx:52.5,cy:12.5,r:12.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"300ms",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"})),M=t.createElement("circle",{cx:52.5,cy:52.5,r:12.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"600ms",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"})),N=t.createElement("circle",{cx:92.5,cy:12.5,r:12.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"800ms",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"})),O=t.createElement("circle",{cx:92.5,cy:52.5,r:12.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"400ms",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"})),w=t.createElement("circle",{cx:12.5,cy:92.5,r:12.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"700ms",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"})),k=t.createElement("circle",{cx:52.5,cy:92.5,r:12.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"500ms",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"})),j=t.createElement("circle",{cx:92.5,cy:92.5,r:12.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"200ms",dur:"1s",values:"1;.2;1",calcMode:"linear",repeatCount:"indefinite"}));function P(){return(P=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var z=t.createElement("path",{d:"M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.717-6.002 11.47-7.65 17.305-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z",fillOpacity:.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.4s",values:"0.5;1;0.5",calcMode:"linear",repeatCount:"indefinite"})),B=t.createElement("path",{d:"M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.592-2.32 17.307 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z",fillOpacity:.5},t.createElement("animate",{attributeName:"fill-opacity",begin:"0.7s",dur:"1.4s",values:"0.5;1;0.5",calcMode:"linear",repeatCount:"indefinite"})),T=t.createElement("path",{d:"M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z"});function _(){return(_=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var R=t.createElement("g",{transform:"translate(1 1)",strokeWidth:2,fill:"none",fillRule:"evenodd"},t.createElement("circle",{strokeOpacity:.5,cx:18,cy:18,r:18}),t.createElement("path",{d:"M36 18c0-9.94-8.06-18-18-18"},t.createElement("animateTransform",{attributeName:"transform",type:"rotate",from:"0 18 18",to:"360 18 18",dur:"1s",repeatCount:"indefinite"})));function L(){return(L=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var S=t.createElement("g",{fill:"none",fillRule:"evenodd",strokeWidth:2},t.createElement("circle",{cx:22,cy:22,r:1},t.createElement("animate",{attributeName:"r",begin:"0s",dur:"1.8s",values:"1; 20",calcMode:"spline",keyTimes:"0; 1",keySplines:"0.165, 0.84, 0.44, 1",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"stroke-opacity",begin:"0s",dur:"1.8s",values:"1; 0",calcMode:"spline",keyTimes:"0; 1",keySplines:"0.3, 0.61, 0.355, 1",repeatCount:"indefinite"})),t.createElement("circle",{cx:22,cy:22,r:1},t.createElement("animate",{attributeName:"r",begin:"-0.9s",dur:"1.8s",values:"1; 20",calcMode:"spline",keyTimes:"0; 1",keySplines:"0.165, 0.84, 0.44, 1",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"stroke-opacity",begin:"-0.9s",dur:"1.8s",values:"1; 0",calcMode:"spline",keyTimes:"0; 1",keySplines:"0.3, 0.61, 0.355, 1",repeatCount:"indefinite"})));function W(){return(W=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var q=t.createElement("g",{fill:"none",fillRule:"evenodd",transform:"translate(1 1)",strokeWidth:2},t.createElement("circle",{cx:22,cy:22,r:6,stroke:"none"},t.createElement("animate",{attributeName:"r",begin:"1.5s",dur:"3s",values:"6;22",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"stroke-opacity",begin:"1.5s",dur:"3s",values:"1;0",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"stroke-width",begin:"1.5s",dur:"3s",values:"2;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:22,cy:22,r:6,stroke:"none"},t.createElement("animate",{attributeName:"r",begin:"3s",dur:"3s",values:"6;22",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"stroke-opacity",begin:"3s",dur:"3s",values:"1;0",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"stroke-width",begin:"3s",dur:"3s",values:"2;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:22,cy:22,r:8},t.createElement("animate",{attributeName:"r",begin:"0s",dur:"1.5s",values:"6;1;2;3;4;5;6",calcMode:"linear",repeatCount:"indefinite"})));function G(){return(G=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var A=t.createElement("g",{transform:"translate(2 1)",stroke:"currentColor",strokeWidth:1.5,fill:"none",fillRule:"evenodd"},t.createElement("circle",{cx:42.601,cy:11.462,r:5,fill:"currentColor"},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.3s",values:"1;0;0;0;0;0;0;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:49.063,cy:27.063,r:5,fill:"none"},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.3s",values:"0;1;0;0;0;0;0;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:42.601,cy:42.663,r:5,fill:"none"},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.3s",values:"0;0;1;0;0;0;0;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:27,cy:49.125,r:5,fill:"none"},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.3s",values:"0;0;0;1;0;0;0;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:11.399,cy:42.663,r:5,fill:"none"},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.3s",values:"0;0;0;0;1;0;0;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:4.938,cy:27.063,r:5,fill:"none"},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.3s",values:"0;0;0;0;0;1;0;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:11.399,cy:11.462,r:5,fill:"none"},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.3s",values:"0;0;0;0;0;0;1;0",calcMode:"linear",repeatCount:"indefinite"})),t.createElement("circle",{cx:27,cy:5,r:5,fill:"none"},t.createElement("animate",{attributeName:"fill-opacity",begin:"0s",dur:"1.3s",values:"0;0;0;0;0;0;0;1",calcMode:"linear",repeatCount:"indefinite"})));function D(){return(D=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var H=t.createElement("defs",null,t.createElement("linearGradient",{x1:"8.042%",y1:"0%",x2:"65.682%",y2:"23.865%",id:"tail-spin_svg__a"},t.createElement("stop",{stopColor:"#fff",stopOpacity:0,offset:"0%"}),t.createElement("stop",{stopColor:"#fff",stopOpacity:.631,offset:"63.146%"}),t.createElement("stop",{stopColor:"#fff",offset:"100%"}))),V=t.createElement("g",{transform:"translate(1 1)",fill:"none",fillRule:"evenodd"},t.createElement("path",{d:"M36 18c0-9.94-8.06-18-18-18",stroke:"url(#tail-spin_svg__a)",strokeWidth:2},t.createElement("animateTransform",{attributeName:"transform",type:"rotate",from:"0 18 18",to:"360 18 18",dur:"0.9s",repeatCount:"indefinite"})),t.createElement("circle",{fill:"#fff",cx:36,cy:18,r:1},t.createElement("animateTransform",{attributeName:"transform",type:"rotate",from:"0 18 18",to:"360 18 18",dur:"0.9s",repeatCount:"indefinite"})));function F(){return(F=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var a in r)Object.prototype.hasOwnProperty.call(r,a)&&(e[a]=r[a])}return e}).apply(this,arguments)}var I=t.createElement("circle",{cx:15,cy:15,r:15},t.createElement("animate",{attributeName:"r",from:15,to:15,begin:"0s",dur:"0.8s",values:"15;9;15",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"fill-opacity",from:1,to:1,begin:"0s",dur:"0.8s",values:"1;.5;1",calcMode:"linear",repeatCount:"indefinite"})),J=t.createElement("circle",{cx:60,cy:15,r:9,fillOpacity:.3},t.createElement("animate",{attributeName:"r",from:9,to:9,begin:"0s",dur:"0.8s",values:"9;15;9",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"fill-opacity",from:.5,to:.5,begin:"0s",dur:"0.8s",values:".5;1;.5",calcMode:"linear",repeatCount:"indefinite"})),K=t.createElement("circle",{cx:105,cy:15,r:15},t.createElement("animate",{attributeName:"r",from:15,to:15,begin:"0s",dur:"0.8s",values:"15;9;15",calcMode:"linear",repeatCount:"indefinite"}),t.createElement("animate",{attributeName:"fill-opacity",from:1,to:1,begin:"0s",dur:"0.8s",values:"1;.5;1",calcMode:"linear",repeatCount:"indefinite"}));exports.Audio=function(e){return t.createElement("svg",l({viewBox:"0 0 55 80",fill:"currentColor"},e),c)},exports.BallTriangle=function(e){return t.createElement("svg",o({viewBox:"0 0 57 57",stroke:"currentColor"},e),u)},exports.Bars=function(e){return t.createElement("svg",s({viewBox:"0 0 135 140",fill:"currentColor"},e),m,d,f,p,v)},exports.Circles=function(e){return t.createElement("svg",b({viewBox:"0 0 135 135",fill:"currentColor"},e),E,y)},exports.Grid=function(e){return t.createElement("svg",g({viewBox:"0 0 105 105",fill:"currentColor"},e),h,x,C,M,N,O,w,k,j)},exports.Hearts=function(e){return t.createElement("svg",P({viewBox:"0 0 140 64",fill:"currentColor"},e),z,B,T)},exports.LoaderProvider=function(e){var a=e.indicator,n=e.children,l=t.useMemo((function(){return{indicator:a}}),[a]);return r.createElement(i.Provider,{value:l},n)},exports.Oval=function(e){return t.createElement("svg",_({viewBox:"0 0 38 38",stroke:"currentColor"},e),R)},exports.Puff=function(e){return t.createElement("svg",L({viewBox:"0 0 44 44",stroke:"currentColor"},e),S)},exports.Rings=function(e){return t.createElement("svg",W({viewBox:"0 0 45 45",stroke:"currentColor"},e),q)},exports.SpinningCircles=function(e){return t.createElement("svg",G({viewBox:"0 0 58 58"},e),A)},exports.TailSpin=function(e){return t.createElement("svg",D({viewBox:"0 0 38 38"},e),H,V)},exports.ThreeDots=function(e){return t.createElement("svg",F({viewBox:"0 0 120 30",fill:"currentColor"},e),I,J,K)},exports.useLoading=function(e){var r=e.loading,l=void 0!==r&&r,c=e.indicator,o=e.loaderProps,u=void 0===o?{}:o,s={"aria-busy":l,"aria-live":"polite"},m=t.useContext(i),d=null!=c?c:null==m?void 0:m.indicator;t.isValidElement(d)||a(!1);var f=n({role:"progressbar","aria-valuetext":u.valueText},function(e,t){if(null==e)return{};var r,a,n={},i=Object.keys(e);for(a=0;a<i.length;a++)t.indexOf(r=i[a])>=0||(n[r]=e[r]);return n}(u,["valueText"])),p=d?t.cloneElement(d,f):null;return{containerProps:s,indicatorEl:l?p:null}};
+	//# sourceMappingURL=react-loading.cjs.production.min.js.map
+
+
+/***/ }),
+/* 226 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var isProduction = process.env.NODE_ENV === 'production';
+	var prefix = 'Invariant failed';
+	function invariant(condition, message) {
+	    if (condition) {
+	        return;
+	    }
+	    if (isProduction) {
+	        throw new Error(prefix);
+	    }
+	    throw new Error(prefix + ": " + (message || ''));
+	}
+	exports.default = invariant;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', { value: true });
+
+	function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+	var React = __webpack_require__(1);
+	var React__default = _interopDefault(React);
+	var invariant = _interopDefault(__webpack_require__(226));
+
+	function _extends() {
+	  _extends = Object.assign || function (target) {
+	    for (var i = 1; i < arguments.length; i++) {
+	      var source = arguments[i];
+
+	      for (var key in source) {
+	        if (Object.prototype.hasOwnProperty.call(source, key)) {
+	          target[key] = source[key];
+	        }
+	      }
+	    }
+
+	    return target;
+	  };
+
+	  return _extends.apply(this, arguments);
+	}
+
+	function _objectWithoutPropertiesLoose(source, excluded) {
+	  if (source == null) return {};
+	  var target = {};
+	  var sourceKeys = Object.keys(source);
+	  var key, i;
+
+	  for (i = 0; i < sourceKeys.length; i++) {
+	    key = sourceKeys[i];
+	    if (excluded.indexOf(key) >= 0) continue;
+	    target[key] = source[key];
+	  }
+
+	  return target;
+	}
+
+	var defaultValue = {
+	  indicator: null
+	};
+	var LoaderContext = /*#__PURE__*/React.createContext(defaultValue);
+	var useLoaderContext = function useLoaderContext() {
+	  return React.useContext(LoaderContext);
+	};
+	var LoaderProvider = function LoaderProvider(_ref) {
+	  var indicator = _ref.indicator,
+	      children = _ref.children;
+	  var value = React.useMemo(function () {
+	    return {
+	      indicator: indicator
+	    };
+	  }, [indicator]);
+	  return React__default.createElement(LoaderContext.Provider, {
+	    value: value
+	  }, children);
+	};
+
+	/**
+	 * Hook returning Indicator element according to loading argument.
+	 * @example const { containerProps, indicatorEl } = useLoading({ loading: true })
+	 */
+
+	function useLoading(_ref) {
+	  var _ref$loading = _ref.loading,
+	      loading = _ref$loading === void 0 ? false : _ref$loading,
+	      indicator = _ref.indicator,
+	      _ref$loaderProps = _ref.loaderProps,
+	      loaderProps = _ref$loaderProps === void 0 ? {} : _ref$loaderProps;
+	  var containerProps = {
+	    'aria-busy': loading,
+	    'aria-live': 'polite'
+	  };
+	  var loaderContext = useLoaderContext();
+	  var indicatorEl = indicator != null ? indicator : loaderContext == null ? void 0 : loaderContext.indicator;
+	  !React.isValidElement(indicatorEl) ?  invariant(false, 'Expected a valid React element as indicator')  : void 0;
+
+	  var accessibleLoaderProps = function () {
+	    var valueText = loaderProps.valueText,
+	        rest = _objectWithoutPropertiesLoose(loaderProps, ["valueText"]);
+
+	    return _extends({
+	      role: 'progressbar',
+	      'aria-valuetext': valueText
+	    }, rest);
+	  }();
+
+	  var accessibleIndicator = indicatorEl ? React.cloneElement(indicatorEl, accessibleLoaderProps) : null;
+	  return {
+	    containerProps: containerProps,
+	    indicatorEl: loading ? accessibleIndicator : null
+	  };
+	}
+
+	function _extends$1() { _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$1.apply(this, arguments); }
+
+	var _ref = /*#__PURE__*/React.createElement("g", {
+	  transform: "matrix(1 0 0 -1 0 80)"
+	}, /*#__PURE__*/React.createElement("rect", {
+	  width: 10,
+	  height: 20,
+	  rx: 3
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0s",
+	  dur: "4.3s",
+	  values: "20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("rect", {
+	  x: 15,
+	  width: 10,
+	  height: 80,
+	  rx: 3
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0s",
+	  dur: "2s",
+	  values: "80;55;33;5;75;23;73;33;12;14;60;80",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("rect", {
+	  x: 30,
+	  width: 10,
+	  height: 50,
+	  rx: 3
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0s",
+	  dur: "1.4s",
+	  values: "50;34;78;23;56;23;34;76;80;54;21;50",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("rect", {
+	  x: 45,
+	  width: 10,
+	  height: 30,
+	  rx: 3
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0s",
+	  dur: "2s",
+	  values: "30;45;13;80;56;72;45;76;34;23;67;30",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})));
+
+	function SvgAudio(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$1({
+	    viewBox: "0 0 55 80",
+	    fill: "currentColor"
+	  }, props), _ref);
+	}
+
+	function _extends$2() { _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$2.apply(this, arguments); }
+
+	var _ref$1 = /*#__PURE__*/React.createElement("g", {
+	  transform: "translate(1 1)",
+	  strokeWidth: 2,
+	  fill: "none",
+	  fillRule: "evenodd"
+	}, /*#__PURE__*/React.createElement("circle", {
+	  cx: 5,
+	  cy: 50,
+	  r: 5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "cy",
+	  begin: "0s",
+	  dur: "2.2s",
+	  values: "50;5;50;50",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "cx",
+	  begin: "0s",
+	  dur: "2.2s",
+	  values: "5;27;49;5",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 27,
+	  cy: 5,
+	  r: 5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "cy",
+	  begin: "0s",
+	  dur: "2.2s",
+	  from: 5,
+	  to: 5,
+	  values: "5;50;50;5",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "cx",
+	  begin: "0s",
+	  dur: "2.2s",
+	  from: 27,
+	  to: 27,
+	  values: "27;49;5;27",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 49,
+	  cy: 50,
+	  r: 5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "cy",
+	  begin: "0s",
+	  dur: "2.2s",
+	  values: "50;50;5;50",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "cx",
+	  from: 49,
+	  to: 49,
+	  begin: "0s",
+	  dur: "2.2s",
+	  values: "49;5;27;49",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})));
+
+	function SvgBallTriangle(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$2({
+	    viewBox: "0 0 57 57",
+	    stroke: "currentColor"
+	  }, props), _ref$1);
+	}
+
+	function _extends$3() { _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$3.apply(this, arguments); }
+
+	var _ref$2 = /*#__PURE__*/React.createElement("rect", {
+	  y: 10,
+	  width: 15,
+	  height: 120,
+	  rx: 6
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0.5s",
+	  dur: "1s",
+	  values: "120;110;100;90;80;70;60;50;40;140;120",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "y",
+	  begin: "0.5s",
+	  dur: "1s",
+	  values: "10;15;20;25;30;35;40;45;50;0;10",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref2 = /*#__PURE__*/React.createElement("rect", {
+	  x: 30,
+	  y: 10,
+	  width: 15,
+	  height: 120,
+	  rx: 6
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0.25s",
+	  dur: "1s",
+	  values: "120;110;100;90;80;70;60;50;40;140;120",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "y",
+	  begin: "0.25s",
+	  dur: "1s",
+	  values: "10;15;20;25;30;35;40;45;50;0;10",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref3 = /*#__PURE__*/React.createElement("rect", {
+	  x: 60,
+	  width: 15,
+	  height: 140,
+	  rx: 6
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0s",
+	  dur: "1s",
+	  values: "120;110;100;90;80;70;60;50;40;140;120",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "y",
+	  begin: "0s",
+	  dur: "1s",
+	  values: "10;15;20;25;30;35;40;45;50;0;10",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref4 = /*#__PURE__*/React.createElement("rect", {
+	  x: 90,
+	  y: 10,
+	  width: 15,
+	  height: 120,
+	  rx: 6
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0.25s",
+	  dur: "1s",
+	  values: "120;110;100;90;80;70;60;50;40;140;120",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "y",
+	  begin: "0.25s",
+	  dur: "1s",
+	  values: "10;15;20;25;30;35;40;45;50;0;10",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref5 = /*#__PURE__*/React.createElement("rect", {
+	  x: 120,
+	  y: 10,
+	  width: 15,
+	  height: 120,
+	  rx: 6
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "height",
+	  begin: "0.5s",
+	  dur: "1s",
+	  values: "120;110;100;90;80;70;60;50;40;140;120",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "y",
+	  begin: "0.5s",
+	  dur: "1s",
+	  values: "10;15;20;25;30;35;40;45;50;0;10",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	function SvgBars(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$3({
+	    viewBox: "0 0 135 140",
+	    fill: "currentColor"
+	  }, props), _ref$2, _ref2, _ref3, _ref4, _ref5);
+	}
+
+	function _extends$4() { _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$4.apply(this, arguments); }
+
+	var _ref$3 = /*#__PURE__*/React.createElement("path", {
+	  d: "M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z"
+	}, /*#__PURE__*/React.createElement("animateTransform", {
+	  attributeName: "transform",
+	  type: "rotate",
+	  from: "0 67 67",
+	  to: "-360 67 67",
+	  dur: "2.5s",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref2$1 = /*#__PURE__*/React.createElement("path", {
+	  d: "M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z"
+	}, /*#__PURE__*/React.createElement("animateTransform", {
+	  attributeName: "transform",
+	  type: "rotate",
+	  from: "0 67 67",
+	  to: "360 67 67",
+	  dur: "8s",
+	  repeatCount: "indefinite"
+	}));
+
+	function SvgCircles(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$4({
+	    viewBox: "0 0 135 135",
+	    fill: "currentColor"
+	  }, props), _ref$3, _ref2$1);
+	}
+
+	function _extends$5() { _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$5.apply(this, arguments); }
+
+	var _ref$4 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 12.5,
+	  cy: 12.5,
+	  r: 12.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref2$2 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 12.5,
+	  cy: 52.5,
+	  r: 12.5,
+	  fillOpacity: 0.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "100ms",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref3$1 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 52.5,
+	  cy: 12.5,
+	  r: 12.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "300ms",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref4$1 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 52.5,
+	  cy: 52.5,
+	  r: 12.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "600ms",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref5$1 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 92.5,
+	  cy: 12.5,
+	  r: 12.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "800ms",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref6 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 92.5,
+	  cy: 52.5,
+	  r: 12.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "400ms",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref7 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 12.5,
+	  cy: 92.5,
+	  r: 12.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "700ms",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref8 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 52.5,
+	  cy: 92.5,
+	  r: 12.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "500ms",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref9 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 92.5,
+	  cy: 92.5,
+	  r: 12.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "200ms",
+	  dur: "1s",
+	  values: "1;.2;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	function SvgGrid(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$5({
+	    viewBox: "0 0 105 105",
+	    fill: "currentColor"
+	  }, props), _ref$4, _ref2$2, _ref3$1, _ref4$1, _ref5$1, _ref6, _ref7, _ref8, _ref9);
+	}
+
+	function _extends$6() { _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$6.apply(this, arguments); }
+
+	var _ref$5 = /*#__PURE__*/React.createElement("path", {
+	  d: "M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.717-6.002 11.47-7.65 17.305-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z",
+	  fillOpacity: 0.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.4s",
+	  values: "0.5;1;0.5",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref2$3 = /*#__PURE__*/React.createElement("path", {
+	  d: "M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.592-2.32 17.307 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z",
+	  fillOpacity: 0.5
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0.7s",
+	  dur: "1.4s",
+	  values: "0.5;1;0.5",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref3$2 = /*#__PURE__*/React.createElement("path", {
+	  d: "M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z"
+	});
+
+	function SvgHearts(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$6({
+	    viewBox: "0 0 140 64",
+	    fill: "currentColor"
+	  }, props), _ref$5, _ref2$3, _ref3$2);
+	}
+
+	function _extends$7() { _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$7.apply(this, arguments); }
+
+	var _ref$6 = /*#__PURE__*/React.createElement("g", {
+	  transform: "translate(1 1)",
+	  strokeWidth: 2,
+	  fill: "none",
+	  fillRule: "evenodd"
+	}, /*#__PURE__*/React.createElement("circle", {
+	  strokeOpacity: 0.5,
+	  cx: 18,
+	  cy: 18,
+	  r: 18
+	}), /*#__PURE__*/React.createElement("path", {
+	  d: "M36 18c0-9.94-8.06-18-18-18"
+	}, /*#__PURE__*/React.createElement("animateTransform", {
+	  attributeName: "transform",
+	  type: "rotate",
+	  from: "0 18 18",
+	  to: "360 18 18",
+	  dur: "1s",
+	  repeatCount: "indefinite"
+	})));
+
+	function SvgOval(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$7({
+	    viewBox: "0 0 38 38",
+	    stroke: "currentColor"
+	  }, props), _ref$6);
+	}
+
+	function _extends$8() { _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$8.apply(this, arguments); }
+
+	var _ref$7 = /*#__PURE__*/React.createElement("g", {
+	  fill: "none",
+	  fillRule: "evenodd",
+	  strokeWidth: 2
+	}, /*#__PURE__*/React.createElement("circle", {
+	  cx: 22,
+	  cy: 22,
+	  r: 1
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "r",
+	  begin: "0s",
+	  dur: "1.8s",
+	  values: "1; 20",
+	  calcMode: "spline",
+	  keyTimes: "0; 1",
+	  keySplines: "0.165, 0.84, 0.44, 1",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "stroke-opacity",
+	  begin: "0s",
+	  dur: "1.8s",
+	  values: "1; 0",
+	  calcMode: "spline",
+	  keyTimes: "0; 1",
+	  keySplines: "0.3, 0.61, 0.355, 1",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 22,
+	  cy: 22,
+	  r: 1
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "r",
+	  begin: "-0.9s",
+	  dur: "1.8s",
+	  values: "1; 20",
+	  calcMode: "spline",
+	  keyTimes: "0; 1",
+	  keySplines: "0.165, 0.84, 0.44, 1",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "stroke-opacity",
+	  begin: "-0.9s",
+	  dur: "1.8s",
+	  values: "1; 0",
+	  calcMode: "spline",
+	  keyTimes: "0; 1",
+	  keySplines: "0.3, 0.61, 0.355, 1",
+	  repeatCount: "indefinite"
+	})));
+
+	function SvgPuff(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$8({
+	    viewBox: "0 0 44 44",
+	    stroke: "currentColor"
+	  }, props), _ref$7);
+	}
+
+	function _extends$9() { _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$9.apply(this, arguments); }
+
+	var _ref$8 = /*#__PURE__*/React.createElement("g", {
+	  fill: "none",
+	  fillRule: "evenodd",
+	  transform: "translate(1 1)",
+	  strokeWidth: 2
+	}, /*#__PURE__*/React.createElement("circle", {
+	  cx: 22,
+	  cy: 22,
+	  r: 6,
+	  stroke: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "r",
+	  begin: "1.5s",
+	  dur: "3s",
+	  values: "6;22",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "stroke-opacity",
+	  begin: "1.5s",
+	  dur: "3s",
+	  values: "1;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "stroke-width",
+	  begin: "1.5s",
+	  dur: "3s",
+	  values: "2;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 22,
+	  cy: 22,
+	  r: 6,
+	  stroke: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "r",
+	  begin: "3s",
+	  dur: "3s",
+	  values: "6;22",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "stroke-opacity",
+	  begin: "3s",
+	  dur: "3s",
+	  values: "1;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "stroke-width",
+	  begin: "3s",
+	  dur: "3s",
+	  values: "2;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 22,
+	  cy: 22,
+	  r: 8
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "r",
+	  begin: "0s",
+	  dur: "1.5s",
+	  values: "6;1;2;3;4;5;6",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})));
+
+	function SvgRings(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$9({
+	    viewBox: "0 0 45 45",
+	    stroke: "currentColor"
+	  }, props), _ref$8);
+	}
+
+	function _extends$a() { _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$a.apply(this, arguments); }
+
+	var _ref$9 = /*#__PURE__*/React.createElement("g", {
+	  transform: "translate(2 1)",
+	  stroke: "currentColor",
+	  strokeWidth: 1.5,
+	  fill: "none",
+	  fillRule: "evenodd"
+	}, /*#__PURE__*/React.createElement("circle", {
+	  cx: 42.601,
+	  cy: 11.462,
+	  r: 5,
+	  fill: "currentColor"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.3s",
+	  values: "1;0;0;0;0;0;0;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 49.063,
+	  cy: 27.063,
+	  r: 5,
+	  fill: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.3s",
+	  values: "0;1;0;0;0;0;0;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 42.601,
+	  cy: 42.663,
+	  r: 5,
+	  fill: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.3s",
+	  values: "0;0;1;0;0;0;0;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 27,
+	  cy: 49.125,
+	  r: 5,
+	  fill: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.3s",
+	  values: "0;0;0;1;0;0;0;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 11.399,
+	  cy: 42.663,
+	  r: 5,
+	  fill: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.3s",
+	  values: "0;0;0;0;1;0;0;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 4.938,
+	  cy: 27.063,
+	  r: 5,
+	  fill: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.3s",
+	  values: "0;0;0;0;0;1;0;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 11.399,
+	  cy: 11.462,
+	  r: 5,
+	  fill: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.3s",
+	  values: "0;0;0;0;0;0;1;0",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  cx: 27,
+	  cy: 5,
+	  r: 5,
+	  fill: "none"
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  begin: "0s",
+	  dur: "1.3s",
+	  values: "0;0;0;0;0;0;0;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	})));
+
+	function SvgSpinningCircles(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$a({
+	    viewBox: "0 0 58 58"
+	  }, props), _ref$9);
+	}
+
+	function _extends$b() { _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$b.apply(this, arguments); }
+
+	var _ref$a = /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
+	  x1: "8.042%",
+	  y1: "0%",
+	  x2: "65.682%",
+	  y2: "23.865%",
+	  id: "tail-spin_svg__a"
+	}, /*#__PURE__*/React.createElement("stop", {
+	  stopColor: "#fff",
+	  stopOpacity: 0,
+	  offset: "0%"
+	}), /*#__PURE__*/React.createElement("stop", {
+	  stopColor: "#fff",
+	  stopOpacity: 0.631,
+	  offset: "63.146%"
+	}), /*#__PURE__*/React.createElement("stop", {
+	  stopColor: "#fff",
+	  offset: "100%"
+	})));
+
+	var _ref2$4 = /*#__PURE__*/React.createElement("g", {
+	  transform: "translate(1 1)",
+	  fill: "none",
+	  fillRule: "evenodd"
+	}, /*#__PURE__*/React.createElement("path", {
+	  d: "M36 18c0-9.94-8.06-18-18-18",
+	  stroke: "url(#tail-spin_svg__a)",
+	  strokeWidth: 2
+	}, /*#__PURE__*/React.createElement("animateTransform", {
+	  attributeName: "transform",
+	  type: "rotate",
+	  from: "0 18 18",
+	  to: "360 18 18",
+	  dur: "0.9s",
+	  repeatCount: "indefinite"
+	})), /*#__PURE__*/React.createElement("circle", {
+	  fill: "#fff",
+	  cx: 36,
+	  cy: 18,
+	  r: 1
+	}, /*#__PURE__*/React.createElement("animateTransform", {
+	  attributeName: "transform",
+	  type: "rotate",
+	  from: "0 18 18",
+	  to: "360 18 18",
+	  dur: "0.9s",
+	  repeatCount: "indefinite"
+	})));
+
+	function SvgTailSpin(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$b({
+	    viewBox: "0 0 38 38"
+	  }, props), _ref$a, _ref2$4);
+	}
+
+	function _extends$c() { _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$c.apply(this, arguments); }
+
+	var _ref$b = /*#__PURE__*/React.createElement("circle", {
+	  cx: 15,
+	  cy: 15,
+	  r: 15
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "r",
+	  from: 15,
+	  to: 15,
+	  begin: "0s",
+	  dur: "0.8s",
+	  values: "15;9;15",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  from: 1,
+	  to: 1,
+	  begin: "0s",
+	  dur: "0.8s",
+	  values: "1;.5;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref2$5 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 60,
+	  cy: 15,
+	  r: 9,
+	  fillOpacity: 0.3
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "r",
+	  from: 9,
+	  to: 9,
+	  begin: "0s",
+	  dur: "0.8s",
+	  values: "9;15;9",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  from: 0.5,
+	  to: 0.5,
+	  begin: "0s",
+	  dur: "0.8s",
+	  values: ".5;1;.5",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	var _ref3$3 = /*#__PURE__*/React.createElement("circle", {
+	  cx: 105,
+	  cy: 15,
+	  r: 15
+	}, /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "r",
+	  from: 15,
+	  to: 15,
+	  begin: "0s",
+	  dur: "0.8s",
+	  values: "15;9;15",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}), /*#__PURE__*/React.createElement("animate", {
+	  attributeName: "fill-opacity",
+	  from: 1,
+	  to: 1,
+	  begin: "0s",
+	  dur: "0.8s",
+	  values: "1;.5;1",
+	  calcMode: "linear",
+	  repeatCount: "indefinite"
+	}));
+
+	function SvgThreeDots(props) {
+	  return /*#__PURE__*/React.createElement("svg", _extends$c({
+	    viewBox: "0 0 120 30",
+	    fill: "currentColor"
+	  }, props), _ref$b, _ref2$5, _ref3$3);
+	}
+
+	exports.Audio = SvgAudio;
+	exports.BallTriangle = SvgBallTriangle;
+	exports.Bars = SvgBars;
+	exports.Circles = SvgCircles;
+	exports.Grid = SvgGrid;
+	exports.Hearts = SvgHearts;
+	exports.LoaderProvider = LoaderProvider;
+	exports.Oval = SvgOval;
+	exports.Puff = SvgPuff;
+	exports.Rings = SvgRings;
+	exports.SpinningCircles = SvgSpinningCircles;
+	exports.TailSpin = SvgTailSpin;
+	exports.ThreeDots = SvgThreeDots;
+	exports.useLoading = useLoading;
+	//# sourceMappingURL=react-loading.cjs.development.js.map
+
+
+/***/ }),
+/* 228 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = Loader;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactLoading = __webpack_require__(224);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function Loader(props) {
+	  var _useLoading = (0, _reactLoading.useLoading)({
+	    loading: props.isLoading,
+	    indicator: _react2.default.createElement(_reactLoading.TailSpin, { width: "200" })
+	  }),
+	      containerProps = _useLoading.containerProps,
+	      indicatorEl = _useLoading.indicatorEl;
+
+	  return _react2.default.createElement(
+	    "div",
+	    { className: "loader" },
+	    _react2.default.createElement(
+	      "section",
+	      containerProps,
+	      indicatorEl,
+	      " "
+	    )
+	  );
+	}
+
+/***/ }),
+/* 229 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -47173,7 +48327,7 @@
 	};
 
 /***/ }),
-/* 224 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47190,7 +48344,7 @@
 
 	var _reactReduxToastr2 = _interopRequireDefault(_reactReduxToastr);
 
-	__webpack_require__(225);
+	__webpack_require__(231);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47206,14 +48360,14 @@
 	};
 
 /***/ }),
-/* 225 */
+/* 231 */
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 226 */,
-/* 227 */
+/* 232 */,
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47224,13 +48378,13 @@
 
 	var _redux = __webpack_require__(148);
 
-	var _quadrinhosReducer = __webpack_require__(228);
+	var _quadrinhosReducer = __webpack_require__(234);
 
 	var _quadrinhosReducer2 = _interopRequireDefault(_quadrinhosReducer);
 
 	var _reactReduxToastr = __webpack_require__(185);
 
-	var _reduxModal = __webpack_require__(229);
+	var _reduxModal = __webpack_require__(235);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47243,7 +48397,7 @@
 	exports.default = rootReducer;
 
 /***/ }),
-/* 228 */
+/* 234 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -47254,7 +48408,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var INITIAL_STATE = { description: '', list: [] };
+	var INITIAL_STATE = { description: '', list: [], isLoading: true };
 
 	exports.default = function () {
 	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : INITIAL_STATE;
@@ -47275,7 +48429,7 @@
 	};
 
 /***/ }),
-/* 229 */
+/* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47283,15 +48437,15 @@
 	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 	}
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var reducer_1 = __webpack_require__(230);
+	var reducer_1 = __webpack_require__(236);
 	exports.reducer = reducer_1.default;
-	var connectModal_1 = __webpack_require__(232);
+	var connectModal_1 = __webpack_require__(238);
 	exports.connectModal = connectModal_1.default;
-	__export(__webpack_require__(233));
+	__export(__webpack_require__(239));
 
 
 /***/ }),
-/* 230 */
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47304,7 +48458,7 @@
 	    return t;
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var actionTypes_1 = __webpack_require__(231);
+	var actionTypes_1 = __webpack_require__(237);
 	var initialState = {};
 	exports.default = (function (state, action) {
 	    if (state === void 0) { state = initialState; }
@@ -47329,7 +48483,7 @@
 
 
 /***/ }),
-/* 231 */
+/* 237 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -47340,7 +48494,7 @@
 
 
 /***/ }),
-/* 232 */
+/* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47376,8 +48530,8 @@
 	var PropTypes = __webpack_require__(40);
 	var redux_1 = __webpack_require__(148);
 	var react_redux_1 = __webpack_require__(131);
-	var actions_1 = __webpack_require__(233);
-	var utils_1 = __webpack_require__(234);
+	var actions_1 = __webpack_require__(239);
+	var utils_1 = __webpack_require__(240);
 	var hoistStatics = __webpack_require__(71);
 	var INITIAL_MODAL_STATE = {};
 	function connectModal(_a) {
@@ -47459,12 +48613,12 @@
 
 
 /***/ }),
-/* 233 */
+/* 239 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var actionTypes_1 = __webpack_require__(231);
+	var actionTypes_1 = __webpack_require__(237);
 	function show(modal, props) {
 	    if (props === void 0) { props = {}; }
 	    return {
@@ -47497,7 +48651,7 @@
 
 
 /***/ }),
-/* 234 */
+/* 240 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -47522,7 +48676,7 @@
 
 
 /***/ }),
-/* 235 */
+/* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47533,7 +48687,7 @@
 
 	exports['default'] = promiseMiddleware;
 
-	var _fluxStandardAction = __webpack_require__(236);
+	var _fluxStandardAction = __webpack_require__(242);
 
 	function isPromise(val) {
 	  return val && typeof val.then === 'function';
@@ -47560,7 +48714,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 236 */
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47571,7 +48725,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodashIsplainobject = __webpack_require__(237);
+	var _lodashIsplainobject = __webpack_require__(243);
 
 	var _lodashIsplainobject2 = _interopRequireDefault(_lodashIsplainobject);
 
@@ -47590,7 +48744,7 @@
 	}
 
 /***/ }),
-/* 237 */
+/* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -47601,9 +48755,9 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var baseFor = __webpack_require__(238),
-	    isArguments = __webpack_require__(239),
-	    keysIn = __webpack_require__(240);
+	var baseFor = __webpack_require__(244),
+	    isArguments = __webpack_require__(245),
+	    keysIn = __webpack_require__(246);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -47699,7 +48853,7 @@
 
 
 /***/ }),
-/* 238 */
+/* 244 */
 /***/ (function(module, exports) {
 
 	/**
@@ -47753,7 +48907,7 @@
 
 
 /***/ }),
-/* 239 */
+/* 245 */
 /***/ (function(module, exports) {
 
 	/**
@@ -47988,7 +49142,7 @@
 
 
 /***/ }),
-/* 240 */
+/* 246 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -47999,8 +49153,8 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var isArguments = __webpack_require__(239),
-	    isArray = __webpack_require__(241);
+	var isArguments = __webpack_require__(245),
+	    isArray = __webpack_require__(247);
 
 	/** Used to detect unsigned integer values. */
 	var reIsUint = /^\d+$/;
@@ -48126,7 +49280,7 @@
 
 
 /***/ }),
-/* 241 */
+/* 247 */
 /***/ (function(module, exports) {
 
 	/**
@@ -48312,7 +49466,7 @@
 
 
 /***/ }),
-/* 242 */
+/* 248 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -48341,7 +49495,7 @@
 	exports.default = multi;
 
 /***/ }),
-/* 243 */
+/* 249 */
 /***/ (function(module, exports) {
 
 	'use strict';
