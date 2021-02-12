@@ -46860,6 +46860,10 @@
 
 	var _loaderEmail2 = _interopRequireDefault(_loaderEmail);
 
+	var _reactModal = __webpack_require__(201);
+
+	var _reactModal2 = _interopRequireDefault(_reactModal);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -46873,6 +46877,19 @@
 
 	var mensagem = '';
 
+	var customStyles = {
+	    content: {
+	        top: '50%',
+	        left: '50%',
+	        right: 'auto',
+	        bottom: 'auto',
+	        marginRight: '-50%',
+	        transform: 'translate(-50%, -50%)',
+	        maxHeight: '100vh',
+	        overFlowY: 'auto'
+	    }
+	};
+
 	var modalEmail = function (_Component) {
 	    _inherits(modalEmail, _Component);
 
@@ -46881,18 +46898,40 @@
 
 	        var _this = _possibleConstructorReturn(this, (modalEmail.__proto__ || Object.getPrototypeOf(modalEmail)).call(this, props));
 
-	        _this.state = { from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email', isLoading: false };
+	        _this.state = { showModal: false, from_name: 'Áquilla', to_email: '', mssage: 'Enviou o email', isLoading: false };
 	        _this.handleChange = _this.handleChange.bind(_this);
 	        _this.handleSubmit = _this.handleSubmit.bind(_this);
+	        _this.showModal = _this.showModal.bind(_this);
+	        _this.closeModal = _this.closeModal.bind(_this);
+	        _this.formatDate = _this.formatDate.bind(_this);
 	        return _this;
 	    }
 
 	    _createClass(modalEmail, [{
+	        key: 'showModal',
+	        value: function showModal(value) {
+	            this.setState({ showModal: value });
+	        }
+	    }, {
+	        key: 'closeModal',
+	        value: function closeModal(value) {
+	            this.setState({ showModal: value });
+	        }
+	    }, {
+	        key: 'formatDate',
+	        value: function formatDate(quadrinho) {
+	            var data = new Date(quadrinho.dates[0].date);
+	            var dataFormatada = data.getDate() + "/" + (data.getMonth() + 1) + "/" + data.getFullYear();
+	            return dataFormatada.toString();
+	        }
+	    }, {
 	        key: 'mountMessage',
 	        value: function mountMessage() {
+	            var _this2 = this;
+
 	            if (this.props.listQuadrinhos.length > 0) {
 	                this.props.listQuadrinhos.map(function (quadrinho) {
-	                    return mensagem += '<img src=' + (quadrinho.thumbnail.path + "." + quadrinho.thumbnail.extension) + ' alt="My Impression">\n                <h2>titulo</h2>\n                <p>' + quadrinho.title + '</p>\n                <h2>Data lan\xE7amento</h2>\n                <p>' + quadrinho.dates[1].date + '</p>\n                <h2>Numero de p\xE1ginas</h2>\n                <p>' + quadrinho.pageCount + '</p>';
+	                    return mensagem += '<img src=' + (quadrinho.thumbnail.path + "." + quadrinho.thumbnail.extension) + ' alt="My Impression">\n                <h2>titulo</h2>\n                <p>' + quadrinho.title + '</p>\n                <h2>Data lan\xE7amento</h2>\n                <p>' + _this2.formatDate(quadrinho) + '</p>\n                <h2>Numero de p\xE1ginas</h2>\n                <p>' + quadrinho.pageCount + '</p>';
 	                });
 	                console.log(mensagem);
 	            }
@@ -46900,9 +46939,48 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this3 = this;
+
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'center' },
+	                _react2.default.createElement(
+	                    _reactModal2.default,
+	                    { isOpen: this.state.showModal, style: customStyles },
+	                    _react2.default.createElement(
+	                        'fieldset',
+	                        { className: 'center' },
+	                        _react2.default.createElement(
+	                            'b',
+	                            null,
+	                            'Tem certeza que deseja enviar esse email?'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'center' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Os quadrinhos selecionados s\xE3o:'
+	                        ),
+	                        this.props.listQuadrinhos.map(function (quadrinho) {
+	                            return _react2.default.createElement(
+	                                'p',
+	                                { key: quadrinho.id },
+	                                quadrinho.title
+	                            );
+	                        })
+	                    ),
+	                    _react2.default.createElement(
+	                        'fieldset',
+	                        { className: 'center' },
+	                        _react2.default.createElement(_iconButton2.default, { title: 'Enviar', style: 'success', onClick: this.handleSubmit }),
+	                        _react2.default.createElement(_iconButton2.default, { title: 'Cancelar', style: 'danger', onClick: function onClick() {
+	                                return _this3.closeModal(false);
+	                            } })
+	                    )
+	                ),
 	                _react2.default.createElement(
 	                    _loaderEmail2.default,
 	                    { isLoading: this.state.isLoading },
@@ -46930,7 +47008,9 @@
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'center' },
-	                            _react2.default.createElement(_iconButton2.default, { title: 'Enviar quadrinhos por email', style: 'success', onClick: this.handleSubmit })
+	                            _react2.default.createElement(_iconButton2.default, { title: 'Enviar quadrinhos por email', style: 'success', onClick: function onClick() {
+	                                    return _this3.showModal(true);
+	                                } })
 	                        )
 	                    )
 	                )
@@ -46949,21 +47029,21 @@
 	            } else {
 	                this.mountMessage();
 	                var templateId = 'template_4dbwqqn';
-	                this.setState({ isLoading: true });
+	                this.setState({ isLoading: true, showModal: false });
 	                this.sendFeedback(templateId, { from_name: this.state.from_name, message: mensagem, to_email: this.state.to_email });
 	            }
 	        }
 	    }, {
 	        key: 'sendFeedback',
 	        value: function sendFeedback(templateId, variables) {
-	            var _this2 = this;
+	            var _this4 = this;
 
 	            _emailjsCom2.default.send('gmail', templateId, variables).then(function (res) {
-	                _this2.setState({ isLoading: false }), _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinhos enviados com sucesso para o email digitado');
+	                _this4.setState({ isLoading: false }), _reactReduxToastr.toastr.success('Sucesso!', 'Quadrinhos enviados com sucesso para o email digitado');
 	            })
 	            // Handle errors here however you like, or use a React error boundary
 	            .catch(function (err) {
-	                _this2.setState({ isLoading: false }), _reactReduxToastr.toastr.error('Erro!', 'Houve um erro no envio, você digitou um email valido?');
+	                _this4.setState({ isLoading: false }), _reactReduxToastr.toastr.error('Erro!', 'Houve um erro no envio, você digitou um email valido?');
 	            });
 	        }
 	    }]);
