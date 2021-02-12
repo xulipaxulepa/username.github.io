@@ -76,6 +76,12 @@ table {
   padding: 10px;
 }
 
+.titulomodalenvioemail {
+  font-family: Avengero;
+    -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+
 .navbar-inverse .navbar-brand {
     font-family: Avengero;
     color: #ec1d25;

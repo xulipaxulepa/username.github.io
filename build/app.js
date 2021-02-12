@@ -46949,7 +46949,7 @@
 	                    { isOpen: this.state.showModal, style: customStyles },
 	                    _react2.default.createElement(
 	                        'fieldset',
-	                        { className: 'center' },
+	                        { className: 'titulomodalenvioemail' },
 	                        _react2.default.createElement(
 	                            'b',
 	                            null,

@@ -68,7 +68,7 @@ export default class modalEmail extends Component {
         return (
             <div className='center'>
                 <Modal isOpen={this.state.showModal} style={customStyles}>
-                    <fieldset className='center'><b>Tem certeza que deseja enviar esse email?</b></fieldset>
+                    <fieldset className='titulomodalenvioemail'><b>Tem certeza que deseja enviar esse email?</b></fieldset>
                     <div className='center'>
                         <p>Os quadrinhos selecionados são:</p>
                         {this.props.listQuadrinhos.map(quadrinho => (
