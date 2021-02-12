@@ -46910,7 +46910,14 @@
 	    _createClass(modalEmail, [{
 	        key: 'showModal',
 	        value: function showModal(value) {
-	            this.setState({ showModal: value });
+	            if (this.props.listQuadrinhos.length == 0) {
+	                _reactReduxToastr.toastr.warning('Cuidado!', 'Você não selecionou nenhum quadrinho!');
+	            }
+	            if (this.state.to_email == '') {
+	                _reactReduxToastr.toastr.warning('Cuidado!', 'Você não digitou um email!');
+	            } else {
+	                this.setState({ showModal: value });
+	            }
 	        }
 	    }, {
 	        key: 'closeModal',
@@ -46985,7 +46992,7 @@
 	                    _loaderEmail2.default,
 	                    { isLoading: this.state.isLoading },
 	                    _react2.default.createElement(
-	                        'form',
+	                        'div',
 	                        { className: 'test-mailing' },
 	                        _react2.default.createElement(
 	                            'div',

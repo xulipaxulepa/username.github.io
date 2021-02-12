@@ -35,7 +35,14 @@ export default class modalEmail extends Component {
     }
 
     showModal(value) {
-        this.setState({ showModal: value })
+        if (this.props.listQuadrinhos.length == 0) {
+            toastr.warning('Cuidado!', 'Você não selecionou nenhum quadrinho!')
+        }
+        if (this.state.to_email == '') {
+            toastr.warning('Cuidado!', 'Você não digitou um email!')
+        } else {
+            this.setState({ showModal: value })
+        }
     }
 
     closeModal(value) {
@@ -81,7 +88,7 @@ export default class modalEmail extends Component {
                     </fieldset>
                 </Modal>
                 <LoaderEmail isLoading={this.state.isLoading}>
-                    <form className="test-mailing">
+                    <div className="test-mailing">
                         <div>
                             <label className='about labelemailcentralizada'>Receba os quadrinhos selecionados via E-Mail</label>
                             <input
@@ -97,7 +104,7 @@ export default class modalEmail extends Component {
                         <div className='center'>
                             <IconButton title='Enviar quadrinhos por email' style='success' onClick={() => this.showModal(true)}></IconButton>
                         </div>
-                    </form>
+                    </div>
                 </LoaderEmail>
             </div>
         )
